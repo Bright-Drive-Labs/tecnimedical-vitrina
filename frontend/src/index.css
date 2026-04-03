@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-blue: #1A4F8B;
+  --color-brand-cyan: #00AEEF;
+  --color-brand-green: #2EB27E;
+  --color-accent-red: #FF3D00;
+  --color-medical-blue: #3a7695;
+  --color-secondary-fixed: #7ff9c0;
+  --color-outline-variant: #c2c6d1;
+  --color-surface-container-low: #f3f3f9;
+  --color-on-tertiary-container: #6ecaff;
+  --color-on-secondary-fixed: #002113;
+  --color-tertiary-container: #005476;
+  --color-on-primary-container: #9bc2ff;
+  --color-on-secondary-fixed-variant: #005236;
+  --color-inverse-surface: #2e3035;
+  --color-on-primary-fixed-variant: #0c4783;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary: #003c55;
+  --color-surface-bright: #f9f9ff;
+  --color-background: #f9f9ff;
+  --color-on-tertiary-fixed-variant: #004c6b;
+  --color-surface-container: #ededf3;
+  --color-on-primary-fixed: #001c3b;
+  --color-inverse-on-surface: #f0f0f6;
+  --color-on-secondary-container: #00714c;
+  --color-on-tertiary-fixed: #001e2d;
+  --color-secondary: #006c49;
+  --color-surface-dim: #d9d9df;
+  --color-tertiary-fixed: #c6e7ff;
+  --color-on-surface: #1a1c20;
+  --color-on-primary: #ffffff;
+  --color-outline: #737781;
+  --color-on-secondary: #ffffff;
+  --color-tertiary-fixed-dim: #82cfff;
+  --color-primary-fixed-dim: #a6c8ff;
+  --color-error-container: #ffdad6;
+  --color-on-background: #1a1c20;
+  --color-on-surface-variant: #424750;
+  --color-on-error: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #e2e2e8;
+  --color-secondary-fixed-dim: #61dca5;
+  --color-primary-fixed: #d5e3ff;
+  --color-surface-container-high: #e8e8ed;
+  --color-surface: #f9f9ff;
+  --color-error: #ba1a1a;
+  --color-surface-tint: #1A4F8B;
+  --color-inverse-primary: #a6c8ff;
+  --color-on-error-container: #93000a;
+  --color-surface-container-highest: #e2e2e8;
+  --color-secondary-container: #7cf7bd;
+  --color-primary-container: #1a4f8b;
+  --color-primary: #1A4F8B;
+
+  --font-body: "Roboto", sans-serif;
+  --font-headline: "Montserrat", sans-serif;
+  --font-label: "Roboto", sans-serif;
+}
+
+@layer base {
+  * {
+    border-radius: 0 !important;
+  }
+  
+  .rounded-full {
+    border-radius: 9999px !important;
+  }
+
+  body {
+    @apply bg-background font-body text-on-background antialiased overflow-x-hidden;
+  }
+}
+
+@layer components {
+  .hero-bg-overlay {
+    background: linear-gradient(to right, 
+        rgba(249, 249, 255, 1) 0%, 
+        rgba(249, 249, 255, 0.98) 25%, 
+        rgba(249, 249, 255, 0.7) 50%, 
+        rgba(249, 249, 255, 0) 100%);
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
