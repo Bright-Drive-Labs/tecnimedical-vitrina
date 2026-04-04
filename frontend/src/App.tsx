@@ -50,9 +50,9 @@ function App() {
             {/* Main Featured Banner */}
             <div className="lg:col-span-2 relative group overflow-hidden bg-[#e6f4ed] flex items-center shadow-sm border border-brand-green/10">
               <div className="absolute right-0 bottom-0 w-2/3 h-full">
-                <img 
-                  alt="Sillas de Ruedas de Alta Gama" 
-                  className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700" 
+                <img
+                  alt="Sillas de Ruedas de Alta Gama"
+                  className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
                   src="/Inst1.png"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#e6f4ed] via-[#e6f4ed]/60 to-transparent"></div>
@@ -75,9 +75,9 @@ function App() {
               {/* Top Small Banner */}
               <div className="relative group overflow-hidden bg-[#e3f2fd] flex-1 min-h-[210px] flex items-center border border-brand-blue/10">
                 <div className="absolute right-0 top-0 h-full w-1/2">
-                  <img 
-                    alt="Fomenteras Eléctricas" 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                  <img
+                    alt="Fomenteras Eléctricas"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     src="/Inst2.png"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-[#e3f2fd] via-[#e3f2fd]/40 to-transparent"></div>
@@ -97,9 +97,9 @@ function App() {
               {/* Bottom Small Banner */}
               <div className="relative group overflow-hidden bg-brand-blue flex-1 min-h-[210px] flex items-center border border-white/10">
                 <div className="absolute right-0 top-0 h-full w-1/2">
-                  <img 
-                    alt="Andaderas de Nueva Generación" 
-                    className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" 
+                  <img
+                    alt="Andaderas de Nueva Generación"
+                    className="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
                     src="/Inst4.png"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-brand-blue via-brand-blue/60 to-transparent"></div>
