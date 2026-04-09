@@ -28,3 +28,10 @@ build/
 *.sln
 *.sw?
 .claude/
+
+# Sensitive business documents
+CONTEXTO.md
+CONTRACT.md
+INSTRUCTIONS.md
+PROMPT_PARA_INSTANCIA_FRONTEND.md
+REGLAS_AGENCIA.md

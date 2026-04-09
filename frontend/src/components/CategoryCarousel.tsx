@@ -7,36 +7,50 @@ const categories = [
     id: 'movilidad',
     label: 'Movilidad',
     driveFolder: '1gWT2aehbNFXcPWpoW5inipUUPp_cKGif',
-    description: 'Sillas de ruedas, andadores, bastones y scooters médicos.',
-    image: '/Cat_Sillas.png',
+    description: 'Sillas de ruedas, andaderas, bastones y muletas.',
+    image: '/Cat_Movilidad.png',
   },
   {
-    id: 'colchones',
-    label: 'Colchones y Cojines',
-    driveFolder: '1vz3N4UsxrxKF_KLLK1gBIYOo4rEMBlIQ',
-    description: 'Colchones antiescaras, cojines posturales y superficies de alivio de presión.',
-    image: '/Cat_Antiescaras.png',
+    id: 'ortopedia',
+    label: 'Ortopedia',
+    driveFolder: '1PLev5o-M0QVl1QMxaB3qaBM56xr0yRA2',
+    description: 'Línea blanda, colchones y cojines ortopédicos, y órtesis.',
+    image: '/Cat_Ortopedia.png',
   },
   {
-    id: 'monitoreo',
-    label: 'Monitoreo',
-    driveFolder: '1cbtb17LcB9ydjCMViRpsyBzIkTUP3uFl',
-    description: 'Tensiómetros, pulsioxímetros, glucómetros y equipos de signos vitales.',
-    image: '/Cat_Diagnostico.png',
+    id: 'equipos-insumos',
+    label: 'Equipos e Insumos',
+    driveFolder: '1ptvyu7cVLxCTaZ6GJ5bCVYHr_5rB0E3_',
+    description: 'Monitoreo de signos vitales, nebulizadores y descartables médicos.',
+    image: '/Cat_Equipos.png',
   },
   {
-    id: 'nebulizadores',
-    label: 'Nebulizadores',
-    driveFolder: '1vZG7WJDmtW_M1xEb9ist4xJG2IcIRCzP',
-    description: 'Nebulizadores de malla y pistón, concentradores de oxígeno y accesorios.',
-    image: '/Cat_Respiratorio.png',
+    id: 'fisioterapia',
+    label: 'Fisioterapia',
+    driveFolder: '1_GBb7XwTXmelpPBOZ9dfZRwTqzLiNqWM',
+    description: 'Electroterapia, masajeadores, rehabilitación y terapia frío/calor.',
+    image: '/Cat_Fisioterapia.png',
   },
   {
     id: 'ayudas-sanitarias',
     label: 'Ayudas Sanitarias',
     driveFolder: '159aQLMoBjZz3gavpZE9jUpIemklcM54o',
-    description: 'Sillas de baño, alzadores de WC, barras de apoyo y adaptadores sanitarios.',
-    image: '/Cat_Ayudas_Portada.png',
+    description: 'Sillas de ducha, sanitarios portátiles y elevadores de WC.',
+    image: '/Cat_Sanitarias.png',
+  },
+  {
+    id: 'cuidado-personal',
+    label: 'Cuidado Personal',
+    driveFolder: '1On50xn71F_TMj1KspQgGmbc9hYT2veqQ',
+    description: 'Alivio del dolor, cuidado de la piel y medias de compresión.',
+    image: '/Cat_Cuidado.png',
+  },
+  {
+    id: 'accesorios-repuestos',
+    label: 'Accesorios y Repuestos',
+    driveFolder: '1dgz8wObjlIn5M-FuzXTS7YdMwtH3uwqA',
+    description: 'Repuestos y accesorios para equipos médicos.',
+    image: '/Cat_Accesorios.png',
   },
 ];
 
@@ -130,7 +144,7 @@ export default function CategoryCarousel() {
                   </div>
                   <button
                     onClick={() => navigate(`/categoria/${current.id}`)}
-                    className="bg-white text-brand-blue hover:bg-brand-blue hover:text-white px-8 md:px-10 py-3 md:py-4 font-black uppercase tracking-[0.1em] text-[10px] md:text-sm transition-all active:scale-[0.95] flex items-center gap-3 shadow-2xl hover:shadow-brand-blue/30 group-button rounded-sm"
+                    className="bg-white text-brand-blue hover:bg-brand-blue hover:text-white px-8 md:px-10 py-3 md:py-4 font-black uppercase tracking-[0.1em] text-[10px] md:text-sm transition-all active:scale-[0.95] flex items-center gap-3 shadow-2xl hover:shadow-brand-blue/30 group-button rounded-lg"
                   >
                     Explorar Colección
                     <span className="material-symbols-outlined text-[18px] md:text-[20px] transition-transform">arrow_forward</span>
@@ -154,8 +168,8 @@ export default function CategoryCarousel() {
             </div>
           </div>
 
-          {/* Progress Indicator Dots */}
-          <div className="absolute bottom-8 right-8 flex flex-col gap-2 md:gap-3">
+          {/* Progress Indicator Dots — Posicionado debajo del contador de slides */}
+          <div className="absolute top-[85px] md:top-[120px] right-8 flex flex-col gap-2 md:gap-3 z-20">
             {categories.map((_, i) => (
               <button
                 key={i}
@@ -184,7 +198,19 @@ export default function CategoryCarousel() {
           </button>
 
           {/* Thumbnail strip — integrado dentro de la imagen */}
-          <div className="absolute bottom-0 left-0 right-0 bg-white/5 backdrop-blur-sm border-t border-white/10">
+          <div className="absolute bottom-0 left-0 right-0 bg-white/5 backdrop-blur-sm border-t border-white/10 group/strip">
+            
+            {/* Horizontal Progress Bar — Barra fluorescente que se mueve */}
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-white/10 overflow-hidden">
+               <motion.div 
+                 key={active}
+                 initial={{ x: "-100%" }}
+                 animate={{ x: "0%" }}
+                 transition={{ duration: 5, ease: "linear" }}
+                 className="w-full h-full bg-brand-cyan shadow-[0_0_10px_#00E5FF]"
+               />
+            </div>
+
             <div className="flex justify-center items-center gap-1 md:gap-2 px-4 md:px-8 py-3 md:py-4 overflow-x-auto scrollbar-hide">
               {categories.map((cat, i) => (
                 <button
@@ -192,6 +218,13 @@ export default function CategoryCarousel() {
                   onClick={() => goTo(i)}
                   className="relative flex-shrink-0 flex flex-col items-center gap-1.5 px-2 md:px-4 py-1 group transition-all"
                 >
+                  {/* Selector bar beneath each specific tab when active */}
+                  {i === active && (
+                    <motion.div 
+                      layoutId="active-tab-bar"
+                      className="absolute -top-[1px] left-0 right-0 h-[3px] bg-brand-cyan z-30 shadow-[0_0_15px_rgba(0,229,255,0.8)]"
+                    />
+                  )}
                   <div
                     className={`w-14 h-10 md:w-20 md:h-14 overflow-hidden transition-all duration-300 ${
                       i === active

@@ -9,33 +9,45 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 const CATEGORIES: Record<string, { label: string; description: string; folderId: string; image: string }> = {
   movilidad: {
     label: 'Movilidad',
-    description: 'Sillas de ruedas, andadores, bastones y scooters médicos.',
+    description: 'Sillas de ruedas, andaderas, bastones y muletas.',
     folderId: '1gWT2aehbNFXcPWpoW5inipUUPp_cKGif',
-    image: '/Cat_Sillas.png',
+    image: '/Cat_Movilidad.png',
   },
-  colchones: {
-    label: 'Colchones y Cojines',
-    description: 'Colchones antiescaras, cojines posturales y superficies de alivio de presión.',
-    folderId: '1vz3N4UsxrxKF_KLLK1gBIYOo4rEMBlIQ',
-    image: '/Cat_Antiescaras.png',
+  ortopedia: {
+    label: 'Ortopedia',
+    description: 'Línea blanda, colchones y cojines ortopédicos, y órtesis.',
+    folderId: '1PLev5o-M0QVl1QMxaB3qaBM56xr0yRA2',
+    image: '/Cat_Ortopedia.png',
   },
-  monitoreo: {
-    label: 'Monitoreo',
-    description: 'Tensiómetros, pulsioxímetros, glucómetros y equipos de signos vitales.',
-    folderId: '1cbtb17LcB9ydjCMViRpsyBzIkTUP3uFl',
-    image: '/Cat_Diagnostico.png',
+  'equipos-insumos': {
+    label: 'Equipos e Insumos',
+    description: 'Monitoreo de signos vitales, nebulizadores y descartables médicos.',
+    folderId: '1ptvyu7cVLxCTaZ6GJ5bCVYHr_5rB0E3_',
+    image: '/Cat_Equipos.png',
   },
-  nebulizadores: {
-    label: 'Nebulizadores',
-    description: 'Nebulizadores de malla y pistón, concentradores de oxígeno y accesorios.',
-    folderId: '1vZG7WJDmtW_M1xEb9ist4xJG2IcIRCzP',
-    image: '/Cat_Respiratorio.png',
+  fisioterapia: {
+    label: 'Fisioterapia',
+    description: 'Electroterapia, masajeadores, rehabilitación y terapia frío/calor.',
+    folderId: '1_GBb7XwTXmelpPBOZ9dfZRwTqzLiNqWM',
+    image: '/Cat_Fisioterapia.png',
   },
   'ayudas-sanitarias': {
     label: 'Ayudas Sanitarias',
-    description: 'Sillas de baño, alzadores de WC, barras de apoyo y adaptadores sanitarios.',
+    description: 'Sillas de ducha, sanitarios portátiles y elevadores de WC.',
     folderId: '159aQLMoBjZz3gavpZE9jUpIemklcM54o',
-    image: '/Cat_Ayudas_Portada.png',
+    image: '/Cat_Sanitarias.png',
+  },
+  'cuidado-personal': {
+    label: 'Cuidado Personal',
+    description: 'Alivio del dolor, cuidado de la piel y medias de compresión.',
+    folderId: '1On50xn71F_TMj1KspQgGmbc9hYT2veqQ',
+    image: '/Cat_Cuidado.png',
+  },
+  'accesorios-repuestos': {
+    label: 'Accesorios y Repuestos',
+    description: 'Repuestos y accesorios para equipos médicos.',
+    folderId: '1dgz8wObjlIn5M-FuzXTS7YdMwtH3uwqA',
+    image: '/Cat_Accesorios.png',
   },
 };
 
@@ -52,36 +64,43 @@ const buildWhatsApp = (productName: string) => {
 
 function ProductGrid({ images, fallbackImg }: { images: DriveImage[]; fallbackImg: string }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6 lg:gap-8">
       {images.map((img, i) => {
         const name = formatName(img.name);
         return (
           <motion.div
             key={img.id}
-            className="bg-white border border-outline-variant/30 hover:shadow-xl transition-all group flex flex-col"
+            className="bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group flex flex-col overflow-hidden rounded-2xl"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: i * 0.04 }}
           >
-            <div className="aspect-square overflow-hidden bg-white p-4 border-b border-slate-50">
+            {/* Imagen */}
+            <div className="h-48 md:h-56 w-full bg-white p-6 flex items-center justify-center border-b border-slate-100">
               <img
                 src={`${API_BASE}/api/image/${img.id}`}
                 alt={name}
-                className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                 onError={e => { (e.target as HTMLImageElement).src = fallbackImg; }}
               />
             </div>
-            <div className="p-4 flex flex-col gap-3 flex-1">
-              <h3 className="text-sm md:text-base font-bold text-on-surface leading-tight line-clamp-2">{name}</h3>
-              <a
-                href={buildWhatsApp(name)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-auto flex items-center justify-center gap-2 bg-brand-green hover:brightness-110 text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98]"
-              >
-                <span className="material-symbols-outlined text-[16px]">chat</span>
-                Cotizar
-              </a>
+
+            {/* Contenido */}
+            <div className="px-4 pb-6 flex flex-col gap-3 flex-1 text-center">
+              <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 min-h-[2.5rem] flex items-center justify-center">
+                {name}
+              </h3>
+              <div className="mt-auto">
+                <a
+                  href={buildWhatsApp(name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 bg-brand-blue border-2 border-brand-blue text-white hover:bg-white hover:text-brand-blue px-5 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 rounded-full shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
+                  Cotizar
+                </a>
+              </div>
             </div>
           </motion.div>
         );
@@ -131,7 +150,7 @@ export default function CategoryPage() {
               return { id: folder.id, name: folder.name, images: d.images ?? [] };
             })
           );
-          setSections(results);
+          setSections(results.filter(s => s.images.length > 0));
         } else {
           // Sin subcarpetas — cargamos imágenes directas
           const res = await fetch(`${API_BASE}/api/gallery/${folderId}`);
@@ -164,7 +183,7 @@ export default function CategoryPage() {
         style={{ backgroundImage: `url('${category.image}')` }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-        <div className="relative h-full flex flex-col justify-end px-4 md:px-8 max-w-screen-2xl mx-auto pb-6 md:pb-8 pt-20 md:pt-24">
+        <div className="relative h-full flex flex-col justify-end px-4 md:px-8 max-w-screen-2xl mx-auto pb-6 md:pb-8 pt-24 md:pt-40">
           <div className="space-y-1">
             <p className="text-brand-cyan text-xs font-black uppercase tracking-widest">Categoría</p>
             <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">{category.label}</h1>
@@ -177,16 +196,10 @@ export default function CategoryPage() {
       <main className="max-w-screen-2xl mx-auto px-4 md:px-8 py-10 md:py-16">
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="aspect-square bg-slate-200 mb-3" />
-                <div className="h-4 bg-slate-200 rounded mb-2 w-3/4" />
-                <div className="h-8 bg-slate-100 rounded" />
-              </div>
-            ))}
+          <div className="flex flex-col items-center justify-center py-32 space-y-4">
+            <div className="w-12 h-12 border-4 border-brand-green/20 border-t-brand-green rounded-full animate-spin"></div>
+            <p className="text-brand-green font-bold uppercase tracking-widest text-sm animate-pulse">Cargando catálogo...</p>
           </div>
-
         ) : isEmpty ? (
           <div className="text-center py-24 space-y-4">
             <span className="material-symbols-outlined text-5xl text-slate-300">inventory_2</span>
@@ -208,10 +221,7 @@ export default function CategoryPage() {
             {sections.map((section) => (
               <div key={section.id} className="first:pt-0">
                 <SectionDivider title={formatName(section.name)} />
-                {section.images.length > 0
-                  ? <ProductGrid images={section.images} fallbackImg={category.image} />
-                  : <p className="text-slate-400 text-sm py-4 text-center border border-dashed border-slate-200 rounded-xl my-4">Sin productos en esta sección aún.</p>
-                }
+                <ProductGrid images={section.images} fallbackImg={category.image} />
               </div>
             ))}
           </>

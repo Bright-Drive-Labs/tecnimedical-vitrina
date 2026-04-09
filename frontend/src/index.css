@@ -60,14 +60,6 @@
 }
 
 @layer base {
-  * {
-    border-radius: 0 !important;
-  }
-  
-  .rounded-full {
-    border-radius: 9999px !important;
-  }
-
   body {
     @apply bg-background font-body text-on-background antialiased overflow-x-hidden;
   }

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const WHATSAPP = '584147148895';
 const PROMO_FOLDER_ID = '1x1TWXLJWr_UIiPRzHPbKB5jJWt2E0QQn';
@@ -48,8 +48,7 @@ export default function PromoSection() {
     return () => window.removeEventListener('resize', updateItemsPerPage);
   }, []);
 
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  
+
   const paginate = (newDirection: number) => {
     setIndex((prev) => {
       let nextIndex = prev + newDirection;
@@ -121,7 +120,7 @@ export default function PromoSection() {
             animate={{ x: `calc(-${index * (100 / itemsPerPage)}% - ${index * (index === 0 ? 0 : 24 / itemsPerPage)}px)` }}
             transition={{ type: 'spring', stiffness: 200, damping: 25 }}
           >
-            {products.map((item, i) => {
+            {products.map((item) => {
               const name = formatName(item.name);
               return (
                 <motion.div
@@ -159,10 +158,10 @@ export default function PromoSection() {
                         href={buildWhatsApp(name)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-3 bg-brand-green hover:bg-brand-green/90 text-white px-6 py-4 text-xs font-black uppercase tracking-widest transition-all active:scale-[0.98] rounded-xl shadow-xl shadow-brand-green/20 group/btn"
+                        className="w-full flex items-center justify-center gap-3 bg-brand-blue border-2 border-brand-blue text-white hover:bg-white hover:text-brand-blue py-3 font-black uppercase tracking-widest text-xs transition-all active:scale-95 rounded-full shadow-sm"
                       >
-                        <span className="material-symbols-outlined text-[18px] group-hover:rotate-12 transition-transform">local_offer</span>
-                        Consultar Precio
+                        <span className="material-symbols-outlined text-[20px]">add_shopping_cart</span>
+                        Consultar Disponibilidad
                       </a>
                     </div>
                   </div>

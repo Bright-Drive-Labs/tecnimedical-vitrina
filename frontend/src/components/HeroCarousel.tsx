@@ -16,41 +16,57 @@ const slides = [
     id: 'movilidad',
     tagline: 'Movilidad',
     title: 'Soluciones de Movilidad',
-    description: 'Sillas de ruedas, andadores, bastones y scooters médicos.',
-    image: '/Cat_Sillas.png',
+    description: 'Sillas de ruedas, andaderas, bastones y muletas.',
+    image: '/Cat_Movilidad.png',
     link: '/categoria/movilidad',
   },
   {
-    id: 'colchones',
-    tagline: 'Colchones y Cojines',
-    title: 'Confort y Alivio de Presión',
-    description: 'Colchones antiescaras, cojines posturales y superficies de alivio de presión.',
-    image: '/Cat_Antiescaras.png',
-    link: '/categoria/colchones',
+    id: 'ortopedia',
+    tagline: 'Ortopedia',
+    title: 'Ortopedia y Línea Blanda',
+    description: 'Línea blanda, colchones y cojines ortopédicos, y órtesis.',
+    image: '/Cat_Ortopedia.png',
+    link: '/categoria/ortopedia',
   },
   {
-    id: 'monitoreo',
-    tagline: 'Monitoreo',
-    title: 'Control de Signos Vitales',
-    description: 'Tensiómetros, pulsioxímetros, glucómetros y equipos de diagnóstico continuo.',
-    image: '/Cat_Diagnostico.png',
-    link: '/categoria/monitoreo',
+    id: 'equipos-insumos',
+    tagline: 'Equipos e Insumos',
+    title: 'Monitoreo y Nebulización',
+    description: 'Monitoreo de signos vitales, nebulizadores y descartables médicos.',
+    image: '/Cat_Equipos.png',
+    link: '/categoria/equipos-insumos',
   },
   {
-    id: 'nebulizadores',
-    tagline: 'Nebulizadores',
-    title: 'Terapia Respiratoria',
-    description: 'Nebulizadores de malla y pistón, concentradores de oxígeno y accesorios.',
-    image: '/Cat_Respiratorio.png',
-    link: '/categoria/nebulizadores',
+    id: 'fisioterapia',
+    tagline: 'Fisioterapia',
+    title: 'Equipos de Fisioterapia',
+    description: 'Electroterapia, masajeadores, rehabilitación y terapia frío/calor.',
+    image: '/Cat_Fisioterapia.png',
+    link: '/categoria/fisioterapia',
   },
   {
     id: 'ayudas-sanitarias',
     tagline: 'Ayudas Sanitarias',
     title: 'Seguridad en el Baño',
-    description: 'Sillas de baño, alzadores de WC, barras de apoyo y adaptadores sanitarios.',
-    image: '/Cat_Ayudas_Portada.png',
+    description: 'Sillas de ducha, sanitarios portátiles y elevadores de WC.',
+    image: '/Cat_Sanitarias.png',
     link: '/categoria/ayudas-sanitarias',
+  },
+  {
+    id: 'cuidado-personal',
+    tagline: 'Cuidado Personal',
+    title: 'Bienestar y Cuidado',
+    description: 'Alivio del dolor, cuidado de la piel y medias de compresión.',
+    image: '/Cat_Cuidado.png',
+    link: '/categoria/cuidado-personal',
+  },
+  {
+    id: 'accesorios-repuestos',
+    tagline: 'Accesorios y Repuestos',
+    title: 'Repuestos y Accesorios',
+    description: 'Repuestos y accesorios para equipos médicos.',
+    image: '/Cat_Accesorios.png',
+    link: '/categoria/accesorios-repuestos',
   },
 ];
 
@@ -259,42 +275,6 @@ export default function HeroCarousel({ onOpenCatalog }: HeroCarouselProps) {
         <span className="material-symbols-outlined text-3xl group-hover:translate-x-1 transition-transform">chevron_right</span>
       </button>
 
-      {/* Floating Search & Catalog Bar — solo desktop (FIJA y SUPERPUESTA) */}
-      <div className="hidden md:block absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-3/4 w-full max-w-5xl px-8 z-50 pointer-events-auto">
-        <div className="bg-white rounded-xl shadow-[0_30px_60px_rgba(0,0,0,0.25)] flex flex-row items-stretch border border-slate-200 overflow-hidden">
-          <div className="flex-1 flex items-center px-6 py-5 bg-white">
-            <span className="material-symbols-outlined text-slate-400 mr-4">search</span>
-            <input
-              className="w-full bg-transparent border-none focus:ring-0 outline-none text-on-surface placeholder:text-slate-400 text-lg"
-              placeholder="Búsqueda inteligente de productos..."
-              type="text"
-            />
-            <button className="bg-brand-blue hover:brightness-110 text-white px-8 py-2 ml-4 text-sm font-black uppercase tracking-widest transition-all active:scale-95 rounded-lg shadow-md shadow-brand-blue/20">
-              Buscar
-            </button>
-          </div>
-          <button
-            onClick={onOpenCatalog}
-            className="bg-medical-blue hover:brightness-110 text-white px-10 py-5 text-sm font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-3"
-          >
-            Ver Catálogo (+400 productos)
-            <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Search bar mobile */}
-      <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-3 flex items-center gap-2 z-30 pointer-events-auto">
-        <span className="material-symbols-outlined text-slate-400 text-[20px]">search</span>
-        <input
-          className="flex-1 bg-transparent border-none focus:ring-0 outline-none text-on-surface placeholder:text-slate-400 text-sm"
-          placeholder="Búsqueda inteligente..."
-          type="text"
-        />
-        <button className="bg-brand-blue text-white px-4 py-1.5 text-xs font-black uppercase tracking-wider rounded-md">
-          Buscar
-        </button>
-      </div>
     </section>
   );
 }
