@@ -97,7 +97,7 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
         <div className="flex items-center justify-center gap-2 md:gap-4 px-4 py-2">
           <span className="text-base md:text-lg">🚚</span>
           <span className="uppercase tracking-widest whitespace-nowrap">
-            Envíos <span className="text-brand-cyan">GRATIS</span> a todo el país vía <span className="text-brand-cyan font-black">MRW</span>
+            Envíos a todo el país
           </span>
           <span className="text-white/50 text-[9px] hidden md:inline ml-2 uppercase tracking-tighter">· Aplican condiciones</span>
         </div>
