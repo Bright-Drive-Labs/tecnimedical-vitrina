@@ -92,10 +92,12 @@ export default function CategoryPage() {
       setLoading(true);
       try {
         // Usamos .in() con el array de posibles nombres para máxima cobertura
+        // Solo mostramos productos que tengan imagen en Google Drive (drive_id no nulo)
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .in('category', category.dbCategories);
+          .in('category', category.dbCategories)
+          .not('drive_id', 'is', null);
 
         if (error) {
           console.error('Error fetching products:', error);
