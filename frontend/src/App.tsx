@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Send } from 'lucide-react';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import ProductDetail from './components/ProductDetail';
 import LeadCaptureModal from './components/LeadCaptureModal';
 import ChatWidget from './components/ChatWidget';
 import CategoryCarousel from './components/CategoryCarousel';
 import HeroCarousel from './components/HeroCarousel';
 import CategoryPage from './pages/CategoryPage';
+import ProductDetailPage from './pages/ProductDetailPage';
+import SearchResultsPage from './pages/SearchResultsPage';
 import PromoPage from './pages/PromoPage';
 import Navbar from './components/Navbar';
 import PromoSection from './components/PromoSection';
+import InstagramReelSection from './components/InstagramReelSection';
 
 // Types
 interface Product {
@@ -25,12 +26,15 @@ interface Product {
 }
 
 function App() {
+  const navigate = useNavigate();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
 
   return (
     <Routes>
       <Route path="/categoria/:slug" element={<CategoryPage />} />
+      <Route path="/producto/:slug" element={<ProductDetailPage />} />
+      <Route path="/buscar" element={<SearchResultsPage />} />
       <Route path="/promociones" element={<PromoPage />} />
       <Route path="*" element={(
         <div className="bg-background font-body text-on-background antialiased overflow-x-hidden min-h-screen">
@@ -49,7 +53,10 @@ function App() {
             <section className="max-w-screen-2xl mx-auto px-4 md:px-8 pt-16 md:pt-32 pb-8 md:pb-16">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[450px]">
                 {/* Main Featured Banner */}
-                <div className="lg:col-span-2 relative group overflow-hidden bg-[#e6f4ed] flex items-center shadow-sm border border-brand-green/10 rounded-2xl">
+                <div 
+                  onClick={() => navigate('/categoria/movilidad')}
+                  className="lg:col-span-2 relative group overflow-hidden bg-[#e6f4ed] flex items-center shadow-sm border border-brand-green/10 rounded-2xl cursor-pointer"
+                >
                   <div className="absolute right-0 bottom-0 w-2/3 h-full">
                     <img
                       alt="Sillas de Ruedas de Alta Gama"
@@ -60,25 +67,24 @@ function App() {
                   </div>
                   
                   <div className="relative z-10 p-8 md:p-12 lg:p-16 max-w-md space-y-5">
-                    <div className="inline-flex bg-[#e57b3e] text-white px-3 py-1.5 rounded-md font-bold text-sm shadow-sm items-center gap-1">
-                      <span className="material-symbols-outlined text-sm">local_fire_department</span>
-                      -65% OFF
-                    </div>
-                    <div className="space-y-2">
+                  <div className="space-y-2">
                       <p className="text-brand-green font-bold text-lg">Movilidad Elite</p>
                       <h2 className="text-4xl lg:text-5xl font-extrabold text-primary leading-tight">Sillas de Ruedas: Ergonomía y Libertad</h2>
                     </div>
-                    <button className="bg-brand-green hover:bg-brand-green/90 text-white px-8 py-3 font-bold flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-brand-green/20 rounded-lg">
+                    <div className="bg-brand-green hover:bg-brand-green/90 text-white px-8 py-3 font-bold inline-flex items-center gap-2 transition-all group-hover:px-10 shadow-lg shadow-brand-green/20 rounded-lg">
                       Explorar Ofertas
                       <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </button>
+                    </div>
                   </div>
                 </div>
 
                 {/* Right Column Banners */}
                 <div className="flex flex-col gap-6">
                   {/* Top Small Banner */}
-                  <div className="relative group overflow-hidden bg-[#e3f2fd] flex-1 min-h-[210px] flex items-center border border-brand-blue/10 rounded-2xl">
+                  <div 
+                    onClick={() => navigate('/categoria/fisioterapia')}
+                    className="relative group overflow-hidden bg-[#e3f2fd] flex-1 min-h-[210px] flex items-center border border-brand-blue/10 rounded-2xl cursor-pointer"
+                  >
                     <div className="absolute right-0 top-0 h-full w-1/2">
                       <img
                         alt="Fomenteras Eléctricas"
@@ -89,23 +95,21 @@ function App() {
                     </div>
                     
                     <div className="relative z-10 p-8 space-y-3 w-[60%] lg:w-[65%]">
-                      <div>
-                        <span className="inline-block bg-[#e57b3e] text-white px-2.5 py-1 rounded-md font-bold text-xs shadow-sm">
-                          -10% OFF
-                        </span>
-                      </div>
                       <div className="space-y-1">
                         <p className="text-brand-blue font-semibold text-sm">Soporte Térmico</p>
                         <h3 className="text-xl font-bold text-primary leading-tight">Fomenteras Eléctricas</h3>
                       </div>
-                      <button className="bg-brand-blue text-white px-5 py-2 text-sm font-bold flex items-center gap-1 hover:bg-brand-blue/90 transition-all active:scale-95 rounded-lg">
+                      <div className="bg-brand-blue text-white px-5 py-2 text-sm font-bold inline-flex items-center gap-1 hover:bg-brand-blue/90 transition-all rounded-lg group-hover:px-7">
                         Comprar <span className="material-symbols-outlined text-xs">arrow_forward</span>
-                      </button>
+                      </div>
                     </div>
                   </div>
 
                   {/* Bottom Small Banner */}
-                  <div className="relative group overflow-hidden bg-brand-blue flex-1 min-h-[210px] flex items-center border border-white/10 rounded-2xl">
+                  <div 
+                    onClick={() => navigate('/categoria/movilidad')}
+                    className="relative group overflow-hidden bg-brand-blue flex-1 min-h-[210px] flex items-center border border-white/10 rounded-2xl cursor-pointer"
+                  >
                     <div className="absolute right-0 top-0 h-full w-1/2">
                       <img
                         alt="Andaderas de Nueva Generación"
@@ -116,22 +120,23 @@ function App() {
                     </div>
 
                     <div className="relative z-10 p-8 pt-10 space-y-3 text-white w-[60%] lg:w-[65%]">
-                      <div>
-                        <span className="inline-block bg-[#e57b3e] text-white px-2.5 py-1 rounded-md font-bold text-xs shadow-sm shadow-black/10">
-                          -40% OFF
-                        </span>
-                      </div>
                       <div className="space-y-1">
                         <p className="text-white/70 font-semibold text-sm">Movilidad Segura</p>
                         <h3 className="text-xl font-bold leading-tight">Andaderas: Estabilidad Total</h3>
                       </div>
                       <p className="text-white/60 text-[10px] leading-relaxed">Diseños anatómicos que se adaptan a tu ritmo de vida.</p>
+                      <div className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-5 py-2 text-sm font-bold inline-flex items-center gap-1 transition-all rounded-lg group-hover:px-7 mt-2">
+                        Ver Modelos <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                      </div>
                     </div>
                     <span className="material-symbols-outlined absolute right-4 bottom-4 text-5xl text-white/10 pointer-events-none z-10">local_shipping</span>
                   </div>
                 </div>
               </div>
             </section>
+
+            {/* Testimonios + Reel de Instagram — social proof en el pico de interés */}
+            <InstagramReelSection />
 
             {/* Promociones */}
             <PromoSection />
@@ -167,82 +172,120 @@ function App() {
           {/* Footer */}
           <footer className="bg-slate-50 w-full mt-auto border-t border-slate-200 text-sm leading-relaxed">
 
-            {/* Ubicación física — con mapa */}
-            <div className="bg-white border-b border-slate-200">
-              <div className="max-w-screen-2xl mx-auto px-4 md:px-12 py-8 md:py-10 flex flex-col md:flex-row items-stretch gap-6 md:gap-8">
-                {/* Texto e info */}
-                <div className="flex items-center gap-4 flex-shrink-0">
-                  <span className="material-symbols-outlined text-brand-blue text-[32px] flex-shrink-0">location_on</span>
-                  <div className="space-y-1">
-                    <h4 className="font-black text-brand-blue uppercase text-sm tracking-widest">Tienda Física</h4>
-                    <p className="text-slate-700 font-bold text-base">Calle Santa Teresa, CC Santa Teresa, L-13</p>
-                    <p className="text-slate-500 text-xs text-brand-blue font-medium">Av. 19 de Abril, Edif. El Parque, L-15</p>
-                    <p className="text-slate-500 text-xs">San Cristóbal, Táchira, Venezuela</p>
-                    <a
-                      href="https://www.google.com/maps/place/Tecnimedical.ve/@7.7986564,-72.2193905,1334m/data=!3m2!1e3!4b1!4m6!3m5!1s0x8e666de480c145df:0xc4200244066a6785!8m2!3d7.7986564!4d-72.2193905!16s%2Fg%2F11zk1s4yq3?entry=ttu&g_ep=EgoyMDI2MDQwNi4wIKXMDSoASAFQAw%3D%3D"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 mt-3 bg-brand-blue hover:brightness-110 text-white px-5 py-2 text-xs font-black uppercase tracking-widest rounded-lg transition-all active:scale-95"
-                    >
-                      <span className="material-symbols-outlined text-[14px]">directions</span>
-                      Cómo llegar
-                    </a>
-                  </div>
-                </div>
-
-                {/* Mapa */}
-                <div className="w-full md:flex-1 rounded-lg overflow-hidden shadow-md border border-slate-200 h-40 md:h-auto min-h-40">
-                  <iframe
-                    title="Ubicación Tecnimedical"
-                    src="https://maps.google.com/maps?q=7.7986564,-72.2193905&z=17&output=embed"
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                  />
-                </div>
-              </div>
-            </div>
             {/* Social Networks Bar */}
-            <div className="bg-white border-b border-slate-200 py-6">
-              <div className="max-w-screen-2xl mx-auto px-4 flex justify-center items-center gap-6">
-                <a href="https://www.facebook.com/tecnimedical.ca/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-blue hover:scale-110 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            <div className="bg-white border-b border-slate-200 py-6 text-center">
+              <div className="max-w-screen-2xl mx-auto px-4 flex justify-center items-center gap-12">
+                <a 
+                  href="https://www.facebook.com/p/tecnimedicalca-100090892604074/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center gap-2 text-slate-400 hover:text-[#1877F2] transition-all hover:scale-110 active:scale-95 group"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:fill-[#1877F2]/10"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                  <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">Facebook</span>
                 </a>
-                <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-blue hover:scale-110 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"></path><path d="M9 3v15"></path><path d="M9 3c4 0 6 2 6 2"></path></svg>
-                </a>
-                <a href="https://www.instagram.com/tecnimedical.ve/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-blue hover:scale-110 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                </a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-blue hover:scale-110 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                </a>
-                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-brand-blue hover:scale-110 transition-transform">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2C1 8.11 1 12 1 12s0 3.89.46 5.58a2.78 2.78 0 0 0 1.94 2c1.72.42 8.6.42 8.6.42s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2C23 15.89 23 12 23 12s0-3.89-.46-5.58z"></path><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"></polygon></svg>
+                
+                <a 
+                  href="https://www.instagram.com/tecnimedical.ve?igsh=NnBlZTQzOGR3NmRq" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  referrerPolicy="no-referrer"
+                  className="flex items-center gap-2 text-slate-400 hover:text-[#E4405F] transition-all hover:scale-110 active:scale-95 group"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:fill-[#E4405F]/10"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                  <span className="text-[10px] font-black uppercase tracking-widest hidden md:inline">Instagram</span>
                 </a>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-12 gap-8 md:gap-12 px-4 md:px-12 py-12 md:py-16 max-w-screen-2xl mx-auto">
+            {/* Ubicación física — DOS SUCURSALES */}
+            <div id="tiendas-fisicas" className="bg-slate-50 border-t border-slate-100">
+              <div className="max-w-screen-2xl mx-auto px-4 md:px-12 py-16 md:py-24">
+                <div className="text-center mb-16 space-y-2">
+                  <h2 className="text-2xl md:text-3xl font-black text-brand-blue uppercase tracking-tight">Nuestras Tiendas Físicas</h2>
+                  <p className="text-slate-500 italic text-sm">Visítanos en San Cristóbal, Estado Táchira</p>
+                </div>
+                 
+                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                   {/* Sucursal 1: Santa Teresa */}
+                   <div className="flex flex-col md:flex-row gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100 hover:border-brand-blue/20 transition-all">
+                     <div className="flex-1 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <span className="material-symbols-outlined text-brand-blue">location_on</span>
+                          <h5 className="font-black text-slate-800 uppercase tracking-tight">Sede Santa Teresa</h5>
+                        </div>
+                        <div className="text-sm text-slate-600 space-y-1">
+                          <p className="font-bold text-slate-800 text-base">Calle Santa Teresa, CC Santa Teresa, L-13</p>
+                          <p>San Cristóbal, Táchira</p>
+                        </div>
+                        <a
+                          href="https://www.google.com/maps/place/Tecnimedical.ve/@7.7986564,-72.2193905,17z"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-brand-blue hover:brightness-110 text-white px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-md shadow-brand-blue/10"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">directions</span>
+                          Cómo llegar
+                        </a>
+                     </div>
+                     <div className="w-full md:w-64 h-44 rounded-xl overflow-hidden shadow-inner border border-slate-200">
+                        <iframe
+                          title="Ubicación Santa Teresa"
+                          src="https://maps.google.com/maps?q=7.7986564,-72.2193905&z=17&output=embed"
+                          width="100%" height="100%" style={{ border: 0 }} loading="lazy"
+                        />
+                     </div>
+                   </div>
 
-              {/* Logo, Copyright y Redes Sociales — 2 cols */}
-              <div className="space-y-4 md:col-span-2">
+                   {/* Sucursal 2: El Parque */}
+                   <div className="flex flex-col md:flex-row gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100 hover:border-brand-blue/20 transition-all">
+                     <div className="flex-1 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <span className="material-symbols-outlined text-brand-blue">storefront</span>
+                          <h5 className="font-black text-slate-800 uppercase tracking-tight">Sede El Parque</h5>
+                        </div>
+                        <div className="text-sm text-slate-600 space-y-1">
+                          <p className="font-bold text-slate-800 text-base">Residencias El Parque, Local L-15</p>
+                          <p>Av. 19 de Abril, San Cristóbal, Táchira</p>
+                        </div>
+                        <a
+                          href="https://maps.app.goo.gl/ohKr5Et6L7Yaa4Am7"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-brand-blue hover:brightness-110 text-white px-5 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-md shadow-brand-blue/10"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">directions</span>
+                          Cómo llegar
+                        </a>
+                     </div>
+                     <div className="w-full md:w-64 h-44 rounded-xl overflow-hidden shadow-inner border border-slate-200">
+                        <iframe
+                          title="Ubicación El Parque"
+                          src="https://maps.google.com/maps?q=7.7598798,-72.2143562&z=17&output=embed"
+                          width="100%" height="100%" style={{ border: 0 }} loading="lazy"
+                        />
+                     </div>
+                   </div>
+                 </div>
+               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 px-4 md:px-12 py-12 md:py-16 max-w-screen-2xl mx-auto items-start">
+
+              {/* Logo y Copyright — Col 1 */}
+              <div className="space-y-4">
                 <img
                   alt="Tecnimedical Logo"
                   className="h-12 w-auto object-contain opacity-90"
                   src="/logo.png"
                 />
-                <p className="text-slate-500 text-xs leading-relaxed">© 2026 Tecnimedical. Suministros Médicos Venezuela.</p>
+                <p className="text-slate-500 text-xs leading-relaxed max-w-[200px]">© 2026 Tecnimedical. Suministros Médicos Venezuela.</p>
               </div>
 
-              {/* Productos — 3 cols (2 columnas internas) */}
-              <div className="space-y-2 md:col-span-3">
-                <ul className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <li><h4 className="font-bold text-brand-blue text-sm mb-2">Productos</h4></li>
-                  <li></li>
+              {/* Productos — Col 2 */}
+              <div className="space-y-2">
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
+                  <li className="col-span-2"><h4 className="font-bold text-brand-blue text-sm mb-2 uppercase tracking-widest">Productos</h4></li>
                   <li><Link className="text-slate-500 hover:text-brand-blue hover:underline decoration-brand-blue/30 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" to="/categoria/movilidad">Movilidad</Link></li>
                   <li><Link className="text-slate-500 hover:text-brand-blue hover:underline decoration-brand-blue/30 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" to="/categoria/ortopedia">Ortopedia</Link></li>
                   <li><Link className="text-slate-500 hover:text-brand-blue hover:underline decoration-brand-blue/30 underline-offset-4 transition-opacity opacity-80 hover:opacity-100" to="/categoria/equipos-insumos">Equipos e Insumos</Link></li>
@@ -254,28 +297,29 @@ function App() {
                 </ul>
               </div>
 
-              {/* Horario de Atención — 2 cols */}
-              <div className="space-y-4 md:col-span-2">
-                <h4 className="font-bold text-brand-blue text-sm">Horario de Atención</h4>
-                <ul className="space-y-2 text-xs text-slate-500">
-                  <li className="flex justify-between">
+              {/* Horario de Atención — Col 3 */}
+              <div className="space-y-4">
+                <h4 className="font-bold text-brand-blue text-sm uppercase tracking-widest">Horario de Atención</h4>
+                <ul className="space-y-3 text-xs text-slate-500">
+                  <li className="flex justify-between border-b border-slate-100 pb-1">
                     <span className="font-semibold">Lunes - Viernes:</span>
                     <span>9:00 AM - 6:00 PM</span>
                   </li>
-                  <li className="flex justify-between">
+                  <li className="flex justify-between border-b border-slate-100 pb-1">
                     <span className="font-semibold">Sábados:</span>
                     <span>10:00 AM - 1:00 PM</span>
                   </li>
-                  <li className="flex justify-between text-red-400">
-                    <span className="font-semibold">Domingos:</span>
-                    <span>Cerrado</span>
+                  <li className="flex justify-between text-red-400 font-bold">
+                    <span className="font-semibold uppercase tracking-tighter">Domingos:</span>
+                    <span className="bg-red-50 px-2 py-0.5 rounded">Cerrado</span>
                   </li>
                 </ul>
               </div>
-              {/* Contáctanos — 2 cols */}
-              <div className="space-y-4 md:col-span-2">
-                <h4 className="font-bold text-brand-blue text-sm">Contáctanos</h4>
-                <ul className="space-y-3 text-sm">
+
+              {/* Contáctanos — Col 4 */}
+              <div className="space-y-4">
+                <h4 className="font-bold text-brand-blue text-sm uppercase tracking-widest">Contáctanos</h4>
+                <ul className="space-y-4 text-sm">
                   <li>
                     <a 
                       href={`https://wa.me/584147148895`} 
@@ -284,7 +328,7 @@ function App() {
                       className="flex items-center gap-3 text-slate-500 hover:text-brand-blue transition-colors group"
                     >
                       <span className="material-symbols-outlined text-[20px] text-brand-blue/70 group-hover:text-brand-blue transition-colors outline-none">chat</span>
-                      <span>Solo WhatsApp: +58 414 714 8895</span>
+                      <span className="font-medium">Solo WhatsApp: +58 414 714 8895</span>
                     </a>
                   </li>
                   <li>
@@ -293,7 +337,7 @@ function App() {
                       className="flex items-center gap-3 text-slate-500 hover:text-brand-blue transition-colors group cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-[20px] text-brand-blue/70 group-hover:text-brand-blue transition-colors outline-none">support_agent</span>
-                      <span>Chat en vivo</span>
+                      <span className="font-medium">Chat en vivo</span>
                     </button>
                   </li>
                   <li>
@@ -302,41 +346,10 @@ function App() {
                       className="flex items-center gap-3 text-slate-500 hover:text-brand-blue transition-colors group"
                     >
                       <span className="material-symbols-outlined text-[20px] text-brand-blue/70 group-hover:text-brand-blue transition-colors outline-none">mail</span>
-                      <span>Email: Tecnimedicalca@gmail.com</span>
+                      <span className="font-medium">Email: Tecnimedicalca@gmail.com</span>
                     </a>
                   </li>
                 </ul>
-              </div>
-              {/* Newsletter — 3 cols */}
-              <div className="space-y-4 md:col-span-3">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-bold text-brand-blue text-sm">Newsletter</h4>
-                  <motion.span 
-                    animate={{ y: [0, -5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    className="text-[9px] bg-brand-green text-white px-2 py-0.5 rounded-full font-black uppercase tracking-widest shadow-lg shadow-brand-green/20"
-                  >
-                    ¡ÚNETE!
-                  </motion.span>
-                </div>
-                <p className="text-[11px] text-slate-500 font-medium">Recibe ofertas exclusivas y novedades de Tecnimedical.</p>
-                <div className="flex gap-2 relative group-newsletter">
-                  <input 
-                    className="bg-white dark:bg-slate-800 border border-slate-200 px-4 py-2 text-sm focus:ring-1 ring-brand-blue w-full rounded-lg transition-all" 
-                    placeholder="Tu correo electrónico" 
-                    type="email"
-                  />
-                  <motion.button 
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-brand-blue text-white p-2.5 rounded-lg hover:brightness-110 transition-all relative group/sub shadow-lg shadow-brand-blue/20 flex items-center justify-center"
-                  >
-                    <Send size={20} />
-                    <span className="absolute -top-12 left-1/2 -translate-x-1/2 bg-brand-blue text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover/sub:opacity-100 transition-all scale-90 group-hover/sub:scale-100 whitespace-nowrap pointer-events-none font-bold uppercase tracking-wider shadow-xl border border-white/10">
-                      Suscríbete ahora
-                    </span>
-                  </motion.button>
-                </div>
               </div>
             </div>
           </footer>

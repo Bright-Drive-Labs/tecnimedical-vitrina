@@ -219,7 +219,7 @@ export default function HeroCarousel({ onOpenCatalog }: HeroCarouselProps) {
                   style={{ textShadow: useTransform([mouseX, mouseY], ([x, y]) => `${(x as number)*0.2}px ${(y as number)*0.2}px 8px rgba(0, 102, 178, 0.45)`) }}
                   className="text-xl font-black text-white leading-none"
                 >
-                  Tienda física
+                  Tiendas físicas
                 </motion.span>
                 <motion.span 
                   style={{ textShadow: useTransform([mouseX, mouseY], ([x, y]) => `${(x as number)*0.1}px ${(y as number)*0.1}px 4px rgba(0, 102, 178, 0.3)`) }}

@@ -1,166 +1,123 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useParams, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import ShowcaseProductCard from '../components/ShowcaseProductCard';
+import { supabase } from '../lib/supabase';
 
-const WHATSAPP = '584147148895';
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
-const CATEGORIES: Record<string, { label: string; description: string; folderId: string; image: string }> = {
+
+const CATEGORIES: Record<string, { label: string; description: string; dbCategory: string; image: string }> = {
   movilidad: {
     label: 'Movilidad',
     description: 'Sillas de ruedas, andaderas, bastones y muletas.',
-    folderId: '1gWT2aehbNFXcPWpoW5inipUUPp_cKGif',
+    dbCategory: 'Movilidad',
     image: '/Cat_Movilidad.png',
   },
   ortopedia: {
     label: 'Ortopedia',
     description: 'Línea blanda, colchones y cojines ortopédicos, y órtesis.',
-    folderId: '1PLev5o-M0QVl1QMxaB3qaBM56xr0yRA2',
+    dbCategory: 'Ortopedia',
     image: '/Cat_Ortopedia.png',
   },
   'equipos-insumos': {
     label: 'Equipos e Insumos',
-    description: 'Monitoreo de signos vitales, nebulizadores y descartables médicos.',
-    folderId: '1ptvyu7cVLxCTaZ6GJ5bCVYHr_5rB0E3_',
+    description: 'Monitores, tensiómetros, nebulizadores y consumibles médicos.',
+    dbCategory: 'Equipos e insumos',
     image: '/Cat_Equipos.png',
   },
   fisioterapia: {
     label: 'Fisioterapia',
-    description: 'Electroterapia, masajeadores, rehabilitación y terapia frío/calor.',
-    folderId: '1_GBb7XwTXmelpPBOZ9dfZRwTqzLiNqWM',
-    image: '/Cat_Fisioterapia.png',
+    description: 'Equipos de rehabilitación, terapia física y recuperación muscular.',
+    dbCategory: 'Fisioterapia',
+    image: '/Cat_Fisio.png',
   },
   'ayudas-sanitarias': {
     label: 'Ayudas Sanitarias',
-    description: 'Sillas de ducha, sanitarios portátiles y elevadores de WC.',
-    folderId: '159aQLMoBjZz3gavpZE9jUpIemklcM54o',
-    image: '/Cat_Sanitarias.png',
+    description: 'Sillas para baño, elevadores de WC y accesorios de higiene segura.',
+    dbCategory: 'Ayudas sanitarias',
+    image: '/Cat_Ayudas.png',
   },
   'cuidado-personal': {
     label: 'Cuidado Personal',
-    description: 'Alivio del dolor, cuidado de la piel y medias de compresión.',
-    folderId: '1On50xn71F_TMj1KspQgGmbc9hYT2veqQ',
+    description: 'Productos para el cuidado diario, higiene y bienestar en casa.',
+    dbCategory: 'Cuidado Personal',
     image: '/Cat_Cuidado.png',
   },
   'accesorios-repuestos': {
-    label: 'Accesorios y Repuestos',
-    description: 'Repuestos y accesorios para equipos médicos.',
-    folderId: '1dgz8wObjlIn5M-FuzXTS7YdMwtH3uwqA',
+    label: 'Accesorios',
+    description: 'Repuestos originales y accesorios para todos tus equipos médicos.',
+    dbCategory: 'NA', // En el DB parece que están bajo NA o Sin Categoría
     image: '/Cat_Accesorios.png',
   },
 };
 
-interface DriveImage { id: string; name: string; }
-interface SubSection { id: string; name: string; images: DriveImage[]; }
-
-const formatName = (filename: string) =>
-  filename.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-
-const buildWhatsApp = (productName: string) => {
-  const msg = encodeURIComponent(`Hola Tecnimedical, me interesa el producto: *${productName}*. ¿Pueden darme más información y precio?`);
-  return `https://wa.me/${WHATSAPP}?text=${msg}`;
-};
-
-function ProductGrid({ images, fallbackImg }: { images: DriveImage[]; fallbackImg: string }) {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6 lg:gap-8">
-      {images.map((img, i) => {
-        const name = formatName(img.name);
-        return (
-          <motion.div
-            key={img.id}
-            className="bg-white border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group flex flex-col overflow-hidden rounded-2xl"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: i * 0.04 }}
-          >
-            {/* Imagen */}
-            <div className="h-48 md:h-56 w-full bg-white p-6 flex items-center justify-center border-b border-slate-100">
-              <img
-                src={`${API_BASE}/api/image/${img.id}`}
-                alt={name}
-                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                onError={e => { (e.target as HTMLImageElement).src = fallbackImg; }}
-              />
-            </div>
-
-            {/* Contenido */}
-            <div className="px-4 pb-6 flex flex-col gap-3 flex-1 text-center">
-              <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 min-h-[2.5rem] flex items-center justify-center">
-                {name}
-              </h3>
-              <div className="mt-auto">
-                <a
-                  href={buildWhatsApp(name)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-brand-blue border-2 border-brand-blue text-white hover:bg-white hover:text-brand-blue px-5 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 rounded-full shadow-sm"
-                >
-                  <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
-                  Cotizar
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        );
-      })}
-    </div>
-  );
-}
-
-function SectionDivider({ title }: { title: string }) {
-  return (
-    <div className="pt-16 pb-8">
-      <h2 className="text-xl md:text-2xl font-black text-on-surface uppercase tracking-wide">
-        {title}
-        <div className="h-1 w-14 bg-brand-green mt-3" />
-      </h2>
-    </div>
-  );
-}
-
 export default function CategoryPage() {
   const { slug } = useParams<{ slug: string }>();
   const category = CATEGORIES[slug ?? ''];
-  const [sections, setSections] = useState<SubSection[]>([]);
-  const [rootImages, setRootImages] = useState<DriveImage[]>([]);
+  const [productsBySubcategory, setProductsBySubcategory] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
+  const [selectedSub, setSelectedSub] = useState<string | null>(null);
+
+  const normalizeSubcategory = (sub: string) => {
+    if (!sub || sub.toUpperCase() === 'NA') return 'General';
+    
+    let normalized = sub.trim().toLowerCase();
+    
+    // Unify Ortorepdia
+    if (normalized.includes('blanda')) return 'Blanda';
+    if (normalized.includes('ortesis') || normalized.includes('órtesis')) return 'Órtesis';
+    if (normalized.includes('colchones') || normalized.includes('cojines')) return 'Colchones y Cojines Ortopédicos';
+    
+    // Unify Movilidad
+    if (normalized.includes('caminador') || normalized.includes('andadera')) return 'Andaderas';
+    if (normalized.includes('silla') && normalized.includes('rueda')) return 'Silla de Ruedas';
+    if (normalized.includes('bastone') || normalized.includes('muleta')) return 'Bastones y Muletas';
+
+    // Unify Equipos
+    if (normalized.includes('monitoreo') || normalized.includes('signos vitales')) return 'Monitoreos y Signos Vitales';
+    
+    // Title Case for others
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+  };
 
   useEffect(() => {
     if (!category) return;
-    setLoading(true);
-    setSections([]);
-    setRootImages([]);
+    
+    let isMounted = true;
+    setSelectedSub(null);
 
-    const folderId = category.folderId;
+    async function fetchProducts() {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('category', category.dbCategory)
+          .not('drive_id', 'is', null);
 
-    // Primero buscamos subcarpetas
-    fetch(`${API_BASE}/api/gallery/albums/${folderId}`)
-      .then(r => r.json())
-      .then(async data => {
-        const subfolders: { id: string; name: string }[] = data.albums ?? [];
-
-        if (subfolders.length > 0) {
-          // Tiene subcarpetas — cargamos cada una en paralelo
-          const results = await Promise.all(
-            subfolders.map(async folder => {
-              const res = await fetch(`${API_BASE}/api/gallery/${folder.id}`);
-              const d = await res.json();
-              return { id: folder.id, name: folder.name, images: d.images ?? [] };
-            })
-          );
-          setSections(results.filter(s => s.images.length > 0));
-        } else {
-          // Sin subcarpetas — cargamos imágenes directas
-          const res = await fetch(`${API_BASE}/api/gallery/${folderId}`);
-          const d = await res.json();
-          setRootImages(d.images ?? []);
+        if (error) {
+          console.error('Error fetching products:', error);
+          if (isMounted) setProductsBySubcategory({});
+        } else if (data && isMounted) {
+          const grouped: Record<string, any[]> = {};
+          data.forEach((p: any) => {
+            const rawSub = p.subcategory || 'General';
+            const sub = normalizeSubcategory(rawSub);
+            if (!grouped[sub]) grouped[sub] = [];
+            grouped[sub].push(p);
+          });
+          setProductsBySubcategory(grouped);
         }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [slug]);
+      } catch (err) {
+        console.error('Unexpected error:', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    fetchProducts();
+    return () => { isMounted = false; };
+  }, [slug, category]);
 
   if (!category) {
     return (
@@ -170,70 +127,112 @@ export default function CategoryPage() {
     );
   }
 
-  const totalProducts = sections.reduce((acc, s) => acc + s.images.length, 0) + rootImages.length;
+  const subcategories = Object.keys(productsBySubcategory).sort();
+  const totalProducts = Object.values(productsBySubcategory).reduce((acc, curr) => acc + curr.length, 0);
   const isEmpty = !loading && totalProducts === 0;
+  const displaySubs = selectedSub ? [selectedSub] : subcategories;
 
   return (
-    <div className="bg-background min-h-screen font-body">
+    <div className="bg-background min-h-screen font-body shadow-inner">
       <Navbar />
 
-      {/* Header */}
+      {/* Header Premium (CVS Style Banner) */}
       <div
-        className="relative h-56 md:h-72 bg-cover bg-center"
+        className="relative h-64 md:h-80 bg-cover bg-center border-b border-slate-200"
         style={{ backgroundImage: `url('${category.image}')` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-        <div className="relative h-full flex flex-col justify-end px-4 md:px-8 max-w-screen-2xl mx-auto pb-6 md:pb-8 pt-24 md:pt-40">
-          <div className="space-y-1">
-            <p className="text-brand-cyan text-xs font-black uppercase tracking-widest">Categoría</p>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/50 to-transparent" />
+        <div className="relative h-full flex flex-col justify-end px-6 md:px-8 max-w-[1400px] mx-auto pb-10 pt-32">
+          <div className="space-y-2">
+            <div className="flex items-center text-xs font-bold tracking-widest text-brand-cyan uppercase">
+              <Link to="/" className="opacity-70 cursor-pointer hover:opacity-100">Catálogo</Link>
+              <span className="mx-2 opacity-50">/</span>
+              <span>{category.label}</span>
+            </div>
             <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">{category.label}</h1>
-            <p className="text-white/70 text-sm md:text-base max-w-lg">{category.description}</p>
+            <p className="text-white/80 text-sm md:text-base max-w-lg shadow-sm">{category.description}</p>
           </div>
         </div>
       </div>
 
-      {/* Contenido */}
-      <main className="max-w-screen-2xl mx-auto px-4 md:px-8 py-10 md:py-16">
-
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 space-y-4">
-            <div className="w-12 h-12 border-4 border-brand-green/20 border-t-brand-green rounded-full animate-spin"></div>
-            <p className="text-brand-green font-bold uppercase tracking-widest text-sm animate-pulse">Cargando catálogo...</p>
+      {/* Contenido / Grid */}
+      <main className="max-w-[1400px] mx-auto px-6 md:px-8 py-10 md:py-12 flex flex-col lg:flex-row gap-8">
+        
+        {/* Left Sidebar (Filtros - Estilo CVS) */}
+        <aside className="w-full lg:w-64 shrink-0 space-y-6">
+          <div className="bg-white rounded-xl border border-slate-200 p-5 sticky top-24">
+            <h3 className="font-black text-slate-800 uppercase tracking-widest text-sm mb-4">Filtrar por</h3>
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-slate-600 border-b pb-2">Subcategorías</p>
+              <ul className="space-y-2.5">
+                <li 
+                  onClick={() => setSelectedSub(null)}
+                  className={`flex justify-between items-center text-sm cursor-pointer transition-colors ${!selectedSub ? 'text-brand-blue font-bold' : 'text-slate-600 hover:text-brand-blue'}`}
+                >
+                  <span>Todos</span>
+                  <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {totalProducts}
+                  </span>
+                </li>
+                {subcategories.length > 0 ? (
+                  subcategories.map(sub => (
+                    <li 
+                      key={sub} 
+                      onClick={() => setSelectedSub(sub)}
+                      className={`flex justify-between items-center text-sm cursor-pointer transition-colors ${selectedSub === sub ? 'text-brand-blue font-bold' : 'text-slate-600 hover:text-brand-blue'}`}
+                    >
+                      <span className="truncate pr-2">{sub}</span>
+                      <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">
+                        {productsBySubcategory[sub].length}
+                      </span>
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-sm text-slate-400 italic">No hay filtros</li>
+                )}
+              </ul>
+            </div>
           </div>
-        ) : isEmpty ? (
-          <div className="text-center py-24 space-y-4">
-            <span className="material-symbols-outlined text-5xl text-slate-300">inventory_2</span>
-            <p className="text-slate-400 text-lg">Productos próximamente disponibles.</p>
-            <a
-              href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hola, quiero información sobre ${category.label}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-brand-green text-white px-6 py-3 font-bold text-sm uppercase tracking-widest hover:brightness-110 transition-all"
-            >
-              <span className="material-symbols-outlined text-[18px]">chat</span>
-              Consultar por WhatsApp
-            </a>
+        </aside>
+
+        {/* Right Content */}
+        <div className="flex-1 min-w-0">
+          {/* Top Bar for Sort/Count */}
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
+            <span className="text-sm font-medium text-slate-500">
+              {loading ? 'Buscando...' : `Mostrando ${selectedSub ? productsBySubcategory[selectedSub].length : totalProducts} productos`}
+            </span>
           </div>
 
-        ) : sections.length > 0 ? (
-          // Categoría con subcarpetas — una sección por carpeta
-          <>
-            {sections.map((section) => (
-              <div key={section.id} className="first:pt-0">
-                <SectionDivider title={formatName(section.name)} />
-                <ProductGrid images={section.images} fallbackImg={category.image} />
-              </div>
-            ))}
-          </>
-
-        ) : (
-          // Categoría sin subcarpetas — grid directo
-          <div className="first:pt-0">
-            <SectionDivider title={category.label} />
-            <ProductGrid images={rootImages} fallbackImg={category.image} />
-          </div>
-        )}
-
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+              <div className="w-10 h-10 border-4 border-brand-green/20 border-t-brand-green rounded-full animate-spin"></div>
+              <p className="text-brand-green font-bold uppercase tracking-widest text-xs animate-pulse">Cargando productos...</p>
+            </div>
+          ) : isEmpty ? (
+            <div className="bg-white rounded-2xl border border-slate-200 text-center py-24 space-y-4 shadow-sm">
+              <span className="material-symbols-outlined text-5xl text-slate-300">inventory_2</span>
+              <p className="text-slate-500 font-medium">No se encontraron productos en esta selección.</p>
+            </div>
+          ) : (
+             <div className="space-y-12">
+               {displaySubs.map(sub => (
+                 <div key={sub} className="scroll-mt-24" id={sub}>
+                   <h2 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight mb-6 flex items-center gap-3">
+                     {sub}
+                     <span className="flex-1 h-px bg-slate-100"></span>
+                   </h2>
+                   
+                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                     {productsBySubcategory[sub].map((prod, i) => (
+                       <ShowcaseProductCard key={prod.id} product={prod} delay={i * 0.05} />
+                     ))}
+                   </div>
+                 </div>
+               ))}
+             </div>
+          )}
+        </div>
       </main>
     </div>
   );

@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../lib/supabase';
+import Fuse from 'fuse.js';
 
 const NAV_LINKS = [
   { label: 'Movilidad',          slug: 'movilidad' },
@@ -19,10 +21,65 @@ interface NavbarProps {
 
 export default function Navbar({ onOpenCatalog }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   const isHome = location.pathname === '/';
+
+  // Load products for fuzzy search once
+  useEffect(() => {
+    async function loadAll() {
+      const { data } = await supabase.from('products').select('name, slug, category').not('drive_id', 'is', null);
+      if (data) setAllProducts(data);
+    }
+    loadAll();
+  }, []);
+
+  const fuse = new Fuse(allProducts, {
+    keys: ['name', 'category'],
+    threshold: 0.4,
+  });
+
+  useEffect(() => {
+    if (searchQuery.length > 1) {
+      const results = fuse.search(searchQuery).slice(0, 6).map(r => r.item);
+      setSuggestions(results);
+    } else {
+      setSuggestions([]);
+    }
+  }, [searchQuery, allProducts]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    navigate(`/buscar?q=${encodeURIComponent(searchQuery)}`);
+    setSearchQuery('');
+    setShowSuggestions(false);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleSuggestionClick = (slug: string) => {
+    navigate(`/producto/${slug}`);
+    setSearchQuery('');
+    setShowSuggestions(false);
+    setIsMobileMenuOpen(false);
+  };
 
   const handleCategoryClick = (slug: string) => {
     setIsMobileMenuOpen(false);
@@ -36,15 +93,13 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
   return (
     <>
       {/* Row 1 — Announcement Bar */}
-      <div className="fixed top-0 w-full z-50 bg-brand-blue text-white text-xs md:text-sm font-bold tracking-wide">
+      <div className="fixed top-0 w-full z-50 bg-brand-blue text-white text-[10px] md:text-sm font-bold tracking-wide">
         <div className="flex items-center justify-center gap-2 md:gap-4 px-4 py-2">
           <span className="text-base md:text-lg">🚚</span>
-          <span className="uppercase tracking-widest">
-            Envíos <span className="text-brand-cyan">GRATIS</span> Lun · Mar · Mié
+          <span className="uppercase tracking-widest whitespace-nowrap">
+            Envíos <span className="text-brand-cyan">GRATIS</span> a todo el país vía <span className="text-brand-cyan font-black">MRW</span>
           </span>
-          <span className="hidden sm:inline text-white/60">—</span>
-          <span className="hidden sm:inline">A todo el país vía <span className="text-brand-cyan font-black">MRW</span></span>
-          <span className="text-white/50 text-[10px] hidden md:inline">· Aplican condiciones</span>
+          <span className="text-white/50 text-[9px] hidden md:inline ml-2 uppercase tracking-tighter">· Aplican condiciones</span>
         </div>
       </div>
 
@@ -62,61 +117,95 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
           </Link>
 
           {/* Search bar — desktop only */}
-          <div className="hidden md:flex flex-1 items-center bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+          <form 
+            onSubmit={handleSearch}
+            className="hidden md:flex flex-1 items-center bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-brand-blue/20 transition-all relative"
+            ref={searchRef}
+          >
             <span className="material-symbols-outlined text-slate-400 ml-4 text-[20px]">search</span>
             <input
               className="flex-1 bg-transparent border-none focus:ring-0 outline-none text-on-surface placeholder:text-slate-400 text-sm px-3 py-2.5"
               placeholder="Busca equipos médicos, sillas de ruedas, nebulizadores..."
               type="text"
+              value={searchQuery}
+              onFocus={() => setShowSuggestions(true)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+              }}
             />
-            <button className="bg-brand-blue hover:brightness-110 text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all active:scale-95 m-1 rounded-md">
+            <button 
+              type="submit"
+              className="bg-brand-blue hover:brightness-110 text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all active:scale-95 m-1 rounded-md flex items-center gap-2"
+            >
               Buscar
             </button>
-          </div>
 
-          {/* Location — desktop only */}
-          <a
-            href="https://www.google.com/maps/place/Tecnimedical.ve/@7.7986564,-72.2193905,1334m/data=!3m2!1e3!4b1!4m6!3m5!1s0x8e666de480c145df:0xc4200244066a6785!8m2!3d7.7986564!4d-72.2193905!16s%2Fg%2F11zk1s4yq3?entry=ttu&g_ep=EgoyMDI2MDQwNi4wIKXMDSoASAFQAw%3D%3D"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden md:flex items-center gap-2 flex-shrink-0 group px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+            {/* Suggestions Dropdown */}
+            <AnimatePresence>
+              {showSuggestions && suggestions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-50"
+                >
+                  {suggestions.map((p) => (
+                    <button
+                      key={p.slug}
+                      onClick={() => handleSuggestionClick(p.slug)}
+                      className="w-full flex items-center justify-between px-6 py-3.5 hover:bg-slate-50 transition-colors text-left"
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-800">{p.name}</span>
+                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{p.category}</span>
+                      </div>
+                      <span className="material-symbols-outlined text-slate-300 text-sm">arrow_forward</span>
+                    </button>
+                  ))}
+                  <div className="p-3 bg-slate-50 border-t border-slate-100 flex justify-center">
+                    <button 
+                      onClick={handleSearch}
+                      className="text-[10px] font-black uppercase tracking-widest text-brand-blue hover:underline"
+                    >
+                      Ver todos los resultados
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </form>
+
+          {/* Tiendas Físicas Shortcut — Desktop only */}
+          <motion.button
+            whileHover={{ x: 3 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => {
+              const section = document.getElementById('tiendas-fisicas');
+              if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="hidden lg:flex flex-shrink-0 items-center gap-2 px-2 bg-transparent transition-all group ml-2"
+            title="Ver Tiendas Físicas"
           >
-            <span className="material-symbols-outlined text-brand-blue text-[22px]">location_on</span>
-            <div className="flex flex-col leading-tight">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tienda física</span>
-              <span className="text-xs font-black text-on-surface group-hover:text-brand-blue transition-colors whitespace-nowrap">San Cristóbal, Táchira</span>
+            <div className="w-9 h-9 flex items-center justify-center text-brand-green bg-brand-green/5 rounded-full group-hover:bg-brand-green/10 transition-all">
+              <span className="material-symbols-outlined text-[24px]">storefront</span>
             </div>
-          </a>
+            <div className="flex flex-col items-start leading-none pointer-events-none">
+              <span className="text-[11px] font-black uppercase tracking-tighter text-brand-blue group-hover:text-brand-green transition-colors">Tiendas físicas</span>
+              <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">San Cristóbal, Táchira</span>
+            </div>
+          </motion.button>
 
-          {/* Ver Catálogo — desktop only */}
-          {onOpenCatalog && (
-            <button
-              onClick={onOpenCatalog}
-              className="hidden md:flex items-center gap-2 bg-brand-cyan hover:brightness-110 text-white px-5 py-2.5 text-xs font-black uppercase tracking-widest transition-all active:scale-95 rounded-lg whitespace-nowrap flex-shrink-0"
+          {/* Social Icons / Mobile Toggle / Right Actions */}
+          <div className="flex items-center gap-1 md:gap-3 ml-2 lg:ml-0">
+            {/* Keeping it simple — no icons for now as per user request */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-700 bg-slate-50 rounded-lg"
             >
-              Ver Catálogo
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-            </button>
-          )}
-
-          {/* Icons */}
-          <div className="flex items-center gap-1 ml-auto md:ml-0">
-            <button className="hidden md:flex hover:bg-slate-100 transition-all p-2 rounded-full">
-              <span className="material-symbols-outlined text-brand-blue">person</span>
-            </button>
-            <button className="hidden md:flex hover:bg-slate-100 transition-all p-2 rounded-full relative">
-              <span className="material-symbols-outlined text-brand-blue">shopping_cart</span>
-              <span className="absolute top-1 right-1 bg-secondary w-2 h-2 rounded-full"></span>
-            </button>
-            {/* Hamburger mobile */}
-            <button
-              onClick={() => setIsMobileMenuOpen(prev => !prev)}
-              className="md:hidden p-2 text-brand-blue"
-              aria-label="Abrir menú"
-            >
-              <span className="material-symbols-outlined text-[28px]">
-                {isMobileMenuOpen ? 'close' : 'menu'}
-              </span>
+              <span className="material-symbols-outlined">{isMobileMenuOpen ? 'close' : 'menu'}</span>
             </button>
           </div>
         </div>
@@ -173,17 +262,25 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
           style={{ top: 'calc(2rem + 4rem)' }}
         >
           {/* Mobile search */}
-          <div className="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden mb-3">
+          <form 
+            onSubmit={handleSearch}
+            className="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden mb-3"
+          >
             <span className="material-symbols-outlined text-slate-400 ml-3 text-[18px]">search</span>
             <input
               className="flex-1 bg-transparent border-none focus:ring-0 outline-none text-on-surface placeholder:text-slate-400 text-sm px-2 py-2"
               placeholder="Buscar productos..."
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button className="bg-brand-blue text-white px-3 py-2 text-xs font-black uppercase tracking-wider m-0.5 rounded-md">
+            <button 
+              type="submit"
+              className="bg-brand-blue text-white px-3 py-2 text-xs font-black uppercase tracking-wider m-0.5 rounded-md"
+            >
               Buscar
             </button>
-          </div>
+          </form>
           <Link
             to="/"
             onClick={() => setIsMobileMenuOpen(false)}

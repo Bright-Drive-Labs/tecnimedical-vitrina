@@ -28,8 +28,9 @@ export const sendMessageToAgent = async (
 };
 
 /** Captura un lead (nombre + WhatsApp) a cambio del catálogo.
- *  PENDIENTE: El endpoint POST /api/tecnimedical/leads aún no existe en el backend.
- *  Usa mock automáticamente hasta que VITE_API_BASE_URL apunte al backend real.
+ *  Ruta genérica /api/leads — el tenant_id en el body identifica a Tecnimedical.
+ *  Estándar: MULTITENANT_REFACTOR_MASTER.md — ninguna ruta puede ser cliente-específica.
+ *  Usa mock automáticamente hasta que VITE_API_BASE_URL apunte al backend real en Railway.
  */
 export const captureLead = async (
   name: string,
@@ -42,7 +43,8 @@ export const captureLead = async (
   }
 
   try {
-    const res = await fetch(`${BASE_URL}/api/tecnimedical/leads`, {
+    // ✅ Ruta estándar multi-tenant — el tenant_id en el body identifica al cliente
+    const res = await fetch(`${BASE_URL}/api/leads`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -50,7 +52,7 @@ export const captureLead = async (
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   } catch {
-    // Fallback al mock si el backend aún no tiene el endpoint
+    // Fallback al mock si el backend aún no tiene el endpoint activo
     return mockLeadCapture(payload);
   }
 };
