@@ -92,7 +92,7 @@ export default function CategoryPage() {
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .eq('category', category.dbCategory)
+          .ilike('category', category.dbCategory)
           .not('drive_id', 'is', null);
 
         if (error) {
