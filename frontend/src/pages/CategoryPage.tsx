@@ -6,47 +6,49 @@ import { supabase } from '../lib/supabase';
 
 
 
-const CATEGORIES: Record<string, { label: string; description: string; dbCategory: string; image: string }> = {
+// Cada categoría ahora tiene un array de posibles nombres en la DB
+// para cubrir variaciones de mayúsculas/minúsculas o errores de escritura
+const CATEGORIES: Record<string, { label: string; description: string; dbCategories: string[]; image: string }> = {
   movilidad: {
     label: 'Movilidad',
     description: 'Sillas de ruedas, andaderas, bastones y muletas.',
-    dbCategory: 'Movilidad',
+    dbCategories: ['Movilidad', 'movilidad'],
     image: '/Cat_Movilidad.png',
   },
   ortopedia: {
     label: 'Ortopedia',
     description: 'Línea blanda, colchones y cojines ortopédicos, y órtesis.',
-    dbCategory: 'Ortopedia',
+    dbCategories: ['Ortopedia', 'ortopedia'],
     image: '/Cat_Ortopedia.png',
   },
   'equipos-insumos': {
     label: 'Equipos e Insumos',
     description: 'Monitores, tensiómetros, nebulizadores y consumibles médicos.',
-    dbCategory: 'Equipos e insumos',
+    dbCategories: ['Equipos e insumos', 'Equipos e Insumos', 'equipos e insumos', 'Cuidado Respiratorio'],
     image: '/Cat_Equipos.png',
   },
   fisioterapia: {
     label: 'Fisioterapia',
     description: 'Equipos de rehabilitación, terapia física y recuperación muscular.',
-    dbCategory: 'Fisioterapia',
+    dbCategories: ['Fisioterapia', 'fisioterapia'],
     image: '/Cat_Fisio.png',
   },
   'ayudas-sanitarias': {
     label: 'Ayudas Sanitarias',
     description: 'Sillas para baño, elevadores de WC y accesorios de higiene segura.',
-    dbCategory: 'Ayudas sanitarias',
+    dbCategories: ['Ayudas sanitarias', 'Ayudas Sanitarias', 'ayudas sanitarias'],
     image: '/Cat_Ayudas.png',
   },
   'cuidado-personal': {
     label: 'Cuidado Personal',
     description: 'Productos para el cuidado diario, higiene y bienestar en casa.',
-    dbCategory: 'Cuidado Personal',
+    dbCategories: ['Cuidado Personal', 'Cuidado personal', 'cuidado personal'],
     image: '/Cat_Cuidado.png',
   },
   'accesorios-repuestos': {
     label: 'Accesorios',
     description: 'Repuestos originales y accesorios para todos tus equipos médicos.',
-    dbCategory: 'NA', // En el DB parece que están bajo NA o Sin Categoría
+    dbCategories: ['NA', 'Sin Categoría', 'Sin categoria', 'Accesorios', 'accesorios'],
     image: '/Cat_Accesorios.png',
   },
 };
@@ -89,10 +91,11 @@ export default function CategoryPage() {
     async function fetchProducts() {
       setLoading(true);
       try {
+        // Usamos .in() con el array de posibles nombres para máxima cobertura
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .ilike('category', category.dbCategory);
+          .in('category', category.dbCategories);
 
         if (error) {
           console.error('Error fetching products:', error);
