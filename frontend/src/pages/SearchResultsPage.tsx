@@ -21,14 +21,13 @@ export default function SearchResultsPage() {
         const { data } = await supabase
           .from('products')
           .select('*')
-          .ilike('name', `%${query}%`)
-          .not('drive_id', 'is', null);
+          .ilike('name', `%${query}%`);
 
         if (data && data.length > 0) {
           setProducts(data);
         } else {
           // 2. Fuzzy Fallback
-          const { data: all } = await supabase.from('products').select('*').not('drive_id', 'is', null);
+          const { data: all } = await supabase.from('products').select('*');
           if (all) {
             const fuse = new Fuse(all, { keys: ['name'], threshold: 0.4 });
             const fuzzyResults = fuse.search(query).map(r => r.item);

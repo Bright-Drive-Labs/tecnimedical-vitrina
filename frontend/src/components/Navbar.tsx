@@ -34,7 +34,7 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
   // Load products for fuzzy search once
   useEffect(() => {
     async function loadAll() {
-      const { data } = await supabase.from('products').select('name, slug, category').not('drive_id', 'is', null);
+      const { data } = await supabase.from('products').select('name, slug, category');
       if (data) setAllProducts(data);
     }
     loadAll();

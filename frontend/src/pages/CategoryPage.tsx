@@ -92,8 +92,7 @@ export default function CategoryPage() {
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .ilike('category', category.dbCategory)
-          .not('drive_id', 'is', null);
+          .ilike('category', category.dbCategory);
 
         if (error) {
           console.error('Error fetching products:', error);
