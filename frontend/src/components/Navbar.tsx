@@ -203,10 +203,11 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
             {/* Admin Login Shortcut */}
             <Link 
               to="/admin" 
-              className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-brand-blue bg-slate-50 hover:bg-white rounded-lg transition-all border border-transparent hover:border-slate-100"
+              className="flex items-center gap-2 px-3 py-2 bg-brand-blue/5 text-brand-blue hover:bg-brand-blue hover:text-white rounded-xl transition-all border border-brand-blue/10 shadow-sm"
               title="Acceso Admin"
             >
-              <span className="material-symbols-outlined text-[20px]">lock</span>
+              <span className="material-symbols-outlined text-[18px]">lock</span>
+              <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Admin</span>
             </Link>
 
             <button 
