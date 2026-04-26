@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import { getImageUrl } from '../services/api';
 
 const WHATSAPP = '584147148895';
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
 // ─── Explicit map: Drive Promo Image ID → Product Slug ────────────────────
 // Each entry = promo image in Drive → exact product slug in Supabase
@@ -193,7 +193,7 @@ export default function PromoPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {displayProducts.map((prod, i) => {
                 const previewText = prod.description?.split('<br>')[0].replace('•', '').trim() || 'Equipo Médico en Promoción';
-                const imgUrl = `${API_BASE}/api/image/${prod.promoImageId}`;
+                const imgUrl = getImageUrl(prod.promoImageId);
 
                 return (
                   <motion.div

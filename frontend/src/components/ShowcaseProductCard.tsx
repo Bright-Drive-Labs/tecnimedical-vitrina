@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { getImageUrl } from '../services/api';
 
 const WHATSAPP = '584147148895';
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
 export interface Product {
   id: string;
@@ -23,31 +23,27 @@ const buildWhatsApp = (productName: string) => {
 
 export default function ShowcaseProductCard({ product, delay = 0 }: { product: Product; delay?: number }) {
   // Try to extract a short preview from description (usually the first bullet point)
-  const previewText = product.description.split('<br>')[0].replace('•', '').trim() || 'Equipo Médico Premium';
-  const imgUrl = product.drive_id ? `${API_BASE}/api/image/${product.drive_id}` : '/placeholder-medical.png';
+  const previewText = product.description?.split('<br>')[0].replace('•', '').trim() || 'Equipo Médico Premium';
+  const imgUrl = product.drive_id ? getImageUrl(product.drive_id) : '/logo.png';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
     <motion.div 
       initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
+      transition={{ duration: 0.4, delay }}
       className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full"
     >
       <Link to={`/producto/${product.slug}`} className="flex flex-col h-full">
         {/* Image Container */}
         <div className="relative h-48 sm:h-56 md:h-64 bg-white p-4 md:p-6 flex items-center justify-center overflow-hidden border-b border-slate-50">
           <img
-            src={imageUrl}
+            src={imgUrl}
             alt={product.name}
             className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 will-change-transform"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              if (target.src.includes('drive_proxy')) {
-                target.src = '/logo.png';
-              }
+              target.src = '/logo.png';
             }}
           />
           <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -95,4 +91,3 @@ export default function ShowcaseProductCard({ product, delay = 0 }: { product: P
     </motion.div>
   );
 }
-

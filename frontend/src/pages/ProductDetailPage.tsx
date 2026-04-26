@@ -5,8 +5,9 @@ import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
 import type { Product } from '../components/ShowcaseProductCard';
 
+import { getImageUrl } from '../services/api';
+
 const WHATSAPP = '584147148895';
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
 const buildWhatsApp = (productName: string) => {
   const msg = encodeURIComponent(`Hola Tecnimedical, me interesa el producto: *${productName}*. ¿Pueden darme más información y precio?`);
@@ -71,7 +72,7 @@ export default function ProductDetailPage() {
   // Otherwise fall back to the product's own drive_id from Supabase.
   const promoImgParam = searchParams.get('img');
   const imageId = promoImgParam || product.drive_id;
-  const imgUrl = imageId ? `${API_BASE}/api/image/${imageId}` : '/logo-tecni.png';
+  const imgUrl = imageId ? getImageUrl(imageId) : '/logo.png';
 
   const getCategorySlug = (cat: string) => {
     const map: Record<string, string> = {
