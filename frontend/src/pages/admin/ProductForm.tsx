@@ -131,11 +131,11 @@ export default function ProductForm() {
 
       alert(isEditing ? '¡Producto actualizado!' : '¡Producto creado!');
       // 4. SI HAY UNA IMAGEN NUEVA, sincronizar con Google Drive (Backup organizado)
-      if (publicUrl) {
+      if (imageFile && imageUrl) {
         try {
           const { syncToDrive } = await import('../../services/api');
           await syncToDrive({
-            imageUrl: publicUrl,
+            imageUrl: imageUrl,
             category: formData.category,
             subcategory: formData.subcategory || 'General',
             name: formData.name
