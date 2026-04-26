@@ -9,7 +9,7 @@ dotenv.config();
 
 // Configuración
 const EXCEL_PATH = 'c:/Bright-Drive-Agent/Proyects/Tecnimedical/Catalogo tecnimedical.xlsx';
-const DRIVE_FOLDER_ID = '1v_vS-e461x2vJ6_0WXYpEaK9K3H7vL2n'; // Carpeta correcta de .env.local
+const DRIVE_FOLDER_ID = '1Bo8ClcENLsqNTqjY96P_sLABKenwLydq'; // Carpeta con imágenes del catálogo
 const BDA_ENV_PATH = 'c:/Bright-Drive-Agent/Proyects/Bright-Drive-Agent/.env';
 
 // Cargar variables (Hardcoded para asegurar el éxito del despliegue)

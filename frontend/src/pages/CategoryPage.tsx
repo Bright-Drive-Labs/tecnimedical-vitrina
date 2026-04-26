@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
 import ShowcaseProductCard from '../components/ShowcaseProductCard';
 import { supabase } from '../lib/supabase';
 
@@ -31,13 +30,13 @@ const CATEGORIES: Record<string, { label: string; description: string; dbCategor
     label: 'Fisioterapia',
     description: 'Equipos de rehabilitación, terapia física y recuperación muscular.',
     dbCategories: ['Fisioterapia', 'fisioterapia'],
-    image: '/Cat_Fisio.png',
+    image: '/Cat_Fisioterapia.png',
   },
   'ayudas-sanitarias': {
     label: 'Ayudas Sanitarias',
     description: 'Sillas para baño, elevadores de WC y accesorios de higiene segura.',
     dbCategories: ['Ayudas sanitarias', 'Ayudas Sanitarias', 'ayudas sanitarias'],
-    image: '/Cat_Ayudas.png',
+    image: '/Cat_Sanitarias.png',
   },
   'cuidado-personal': {
     label: 'Cuidado Personal',
@@ -138,8 +137,6 @@ export default function CategoryPage() {
 
   return (
     <div className="bg-background min-h-screen font-body shadow-inner">
-      <Navbar />
-
       {/* Header Premium (CVS Style Banner) */}
       <div
         className="relative h-64 md:h-80 bg-cover bg-center border-b border-slate-200"

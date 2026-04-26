@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import Navbar from '../components/Navbar';
 import ShowcaseProductCard from '../components/ShowcaseProductCard';
 import { supabase } from '../lib/supabase';
 import Fuse from 'fuse.js';
@@ -47,8 +46,6 @@ export default function SearchResultsPage() {
 
   return (
     <div className="bg-slate-50 min-h-screen font-body">
-      <Navbar />
-
       <div className="pt-32 md:pt-44 max-w-screen-2xl mx-auto px-4 md:px-8 pb-20">
         <header className="mb-10 space-y-2">
           <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">

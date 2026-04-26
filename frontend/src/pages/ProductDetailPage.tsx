@@ -91,8 +91,6 @@ export default function ProductDetailPage() {
 
   return (
     <div className="bg-white min-h-screen font-body">
-      <Navbar />
-
       <div className="pt-32 md:pt-52">
         {/* Breadcrumbs */}
         <nav className="max-w-screen-xl mx-auto px-6 py-4 flex items-center text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-400">
@@ -117,7 +115,7 @@ export default function ProductDetailPage() {
                   src={imgUrl}
                   alt={product.name}
                   className="max-w-full max-h-full object-contain"
-                  onError={(e) => { (e.target as HTMLImageElement).src = '/logo-tecni.png'; }}
+                  onError={(e) => { (e.target as HTMLImageElement).src = '/logo.png'; }}
                 />
               </div>
 

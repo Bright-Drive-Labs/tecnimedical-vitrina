@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbar from '../components/Navbar';
 import { supabase } from '../lib/supabase';
 
 const WHATSAPP = '584147148895';
@@ -111,8 +110,6 @@ export default function PromoPage() {
 
   return (
     <div className="bg-background min-h-screen font-body shadow-inner">
-      <Navbar />
-
       {/* Header — mismo estilo que CategoryPage */}
       <div className="relative h-64 md:h-80 bg-slate-900 border-b border-slate-200 overflow-hidden">
         {/* Background - using a placeholder image for promos */}
@@ -221,7 +218,7 @@ export default function PromoPage() {
                           src={imgUrl}
                           alt={prod.promoName}
                           className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 will-change-transform"
-                          onError={(e) => { (e.target as HTMLImageElement).src = '/logo-tecni.png'; }}
+                          onError={(e) => { (e.target as HTMLImageElement).src = '/logo.png'; }}
                         />
                       </div>
 

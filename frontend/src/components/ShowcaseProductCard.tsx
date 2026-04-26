@@ -30,28 +30,29 @@ export default function ShowcaseProductCard({ product, delay = 0 }: { product: P
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
-      className="group relative"
+    <motion.div 
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full"
     >
-      <Link 
-        to={`/producto/${product.slug}`}
-        className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full cursor-pointer"
-      >
-        {/* Badge Superior */}
-        {product.stock_status === 'IN_STOCK' && (
-          <div className="absolute top-0 left-0 bg-brand-cyan text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-br-xl z-20 shadow-sm tracking-wider">
-            Disponible
-          </div>
-        )}
-
-        {/* Área de Imagen */}
-        <div className="relative h-60 md:h-72 bg-white p-6 flex justify-center items-center overflow-hidden border-b border-slate-100">
+      <Link to={`/producto/${product.slug}`} className="flex flex-col h-full">
+        {/* Image Container */}
+        <div className="relative h-48 sm:h-56 md:h-64 bg-white p-4 md:p-6 flex items-center justify-center overflow-hidden border-b border-slate-50">
           <img
-            src={imgUrl}
+            src={imageUrl}
             alt={product.name}
             className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 will-change-transform"
-            onError={(e) => { (e.target as HTMLImageElement).src = '/logo-tecni.png'; }}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              if (target.src.includes('drive_proxy')) {
+                target.src = '/logo.png';
+              }
+            }}
           />
+          <div className="absolute top-3 left-3 flex flex-col gap-2">
+            <span className="bg-brand-blue text-white text-[9px] font-black uppercase px-2.5 py-1 rounded-lg shadow-lg tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">Ver detalle</span>
+          </div>
         </div>
 
         {/* Cuerpo y Texto */}
