@@ -163,23 +163,70 @@ function HomePage({ onOpenCatalog }: { onOpenCatalog: () => void }) {
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    async function checkRole(user: any) {
+      if (!user) {
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('tenant_id', '63e2d67c-9b1a-4d3b-8f32-5a2e6f9c8d1b')
+        .eq('role', 'admin')
+        .single();
+
+      setIsAdmin(!!data && !error);
+      setLoading(false);
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setLoading(false);
+      if (session) checkRole(session.user);
+      else setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) checkRole(session.user);
+      else {
+        setIsAdmin(false);
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  if (loading) return null;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="w-8 h-8 border-4 border-slate-200 border-t-brand-blue rounded-full animate-spin"></div>
+    </div>
+  );
+
   if (!session) return <Navigate to="/admin/login" />;
+  
+  if (isAdmin === false) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4 text-center">
+        <span className="material-symbols-outlined text-red-500 text-6xl mb-4">gpp_bad</span>
+        <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Acceso Denegado</h1>
+        <p className="text-slate-500 mt-2 max-w-sm">No tienes permisos de administrador para Tecnimedical. Contacta al soporte técnico si crees que esto es un error.</p>
+        <button 
+          onClick={() => supabase.auth.signOut()}
+          className="mt-8 text-xs font-black uppercase tracking-widest text-brand-blue hover:underline"
+        >
+          Cerrar sesión e intentar con otra cuenta
+        </button>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }
