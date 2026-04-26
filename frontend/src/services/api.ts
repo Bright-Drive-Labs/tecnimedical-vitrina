@@ -6,7 +6,13 @@
 
 import { mockLeadCapture, type LeadCaptureResponse } from './mocks/leadMock';
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string) || 'https://bright-drive-backend-agent-production.up.railway.app';
+const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL as string) || 
+                   (import.meta.env.VITE_API_BASE as string) || 
+                   'https://bright-drive-backend-agent-production.up.railway.app';
+
+// Limpiamos la URL: eliminamos /api al final y barras diagonales finales
+const BASE_URL = rawBaseUrl.replace(/\/api\/?$/, '').replace(/\/+$/, '');
+
 const TENANT_ID = (import.meta.env.VITE_TENANT_ID as string) || '63e2d67c-9b1a-4d3b-8f32-5a2e6f9c8d1b';
 
 /** Envía un mensaje al Súper Agente y retorna la respuesta del bot */

@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { getImageUrl } from '../services/api';
 
 const WHATSAPP = '584147148895';
 const PROMO_FOLDER_ID = '1x1TWXLJWr_UIiPRzHPbKB5jJWt2E0QQn';
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
 
 interface DriveImage {
   id: string;
@@ -51,7 +51,14 @@ export default function PromoSection() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/gallery/${PROMO_FOLDER_ID}`)
+    // Usamos getImageUrl indirecatmente aquí para la galería, 
+    // pero fetch necesita la URL base de la galería. 
+    // Como api.ts no exporta BASE_URL, construiremos el fetch usando una ruta relativa si es posible, 
+    // pero para ser consistentes con api.ts, lo ideal sería tener una función en api.ts.
+    // Por ahora, usaremos getImageUrl('') para obtener la base.
+    const apiBase = getImageUrl('').replace('/api/image/', '');
+    
+    fetch(`${apiBase}/api/gallery/${PROMO_FOLDER_ID}`)
       .then(r => r.json())
       .then(data => setImages(data.images ?? []))
       .catch(() => setImages([]))
@@ -163,7 +170,7 @@ export default function PromoSection() {
                   {/* Image */}
                   <Link to={targetUrl} className="aspect-[4/3] overflow-hidden bg-white p-8 relative block">
                     <img
-                      src={`${API_BASE}/api/image/${item.id}`}
+                      src={getImageUrl(item.id)}
                       alt={name}
                       className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 ease-out"
                       onError={e => { (e.target as HTMLImageElement).src = '/logo.png'; }}
