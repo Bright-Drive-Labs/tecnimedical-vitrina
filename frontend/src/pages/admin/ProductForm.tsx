@@ -130,6 +130,22 @@ export default function ProductForm() {
       if (error) throw error;
 
       alert(isEditing ? '¡Producto actualizado!' : '¡Producto creado!');
+      // 4. SI HAY UNA IMAGEN NUEVA, sincronizar con Google Drive (Backup organizado)
+      if (publicUrl) {
+        try {
+          const { syncToDrive } = await import('../../services/api');
+          await syncToDrive({
+            imageUrl: publicUrl,
+            category: formData.category,
+            subcategory: formData.subcategory || 'General',
+            name: formData.name
+          });
+          console.log('✅ Doble respaldo completado: Supabase + Google Drive');
+        } catch (syncErr) {
+          console.error('⚠️ Error en el respaldo de Drive (pero se guardó en Supabase):', syncErr);
+        }
+      }
+
       navigate('/admin');
     } catch (err: any) {
       alert(`Error: ${err.message}`);
