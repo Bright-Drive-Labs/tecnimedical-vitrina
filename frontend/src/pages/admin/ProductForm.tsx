@@ -31,26 +31,28 @@ export default function ProductForm() {
 
   useEffect(() => {
     async function loadCategories() {
-      console.log('🔍 Intentando cargar categorías desde Drive...');
+      console.log('🚀 INICIANDO CARGA DE CATEGORÍAS...');
       try {
         const data = await getProductCategories();
-        console.log('📦 Respuesta de la API de Categorías:', data);
+        console.log('📦 DATOS RECIBIDOS DEL SERVIDOR:', data);
         
-        // Probamos ambas posibilidades por seguridad
-        const folders = data.albums || data.folders || data.data;
+        // El backend de Bright Drive envía 'albums'
+        const folders = data.albums || data.folders || (Array.isArray(data) ? data : null);
         
-        if (folders && Array.isArray(folders)) {
-          setDriveCategories(folders);
-          console.log(`✅ ${folders.length} categorías cargadas con éxito.`);
+        if (folders && Array.isArray(folders) && folders.length > 0) {
+          // Mapeamos para asegurar que tengan la propiedad 'name'
+          const formattedFolders = folders.map((f: any) => ({
+            name: f.name || f.text || 'Sin nombre',
+            id: f.id
+          }));
           
-          if (!formData.category && folders.length > 0) {
-            setFormData(prev => ({ ...prev, category: folders[0].name }));
-          }
+          setDriveCategories(formattedFolders);
+          console.log(`✅ ${formattedFolders.length} categorías sincronizadas desde Drive.`);
         } else {
-          console.warn('⚠️ La API respondió pero no se encontró un array de carpetas válido:', data);
+          console.warn('⚠️ No se recibieron carpetas de Drive, manteniendo categorías por defecto.');
         }
       } catch (err) {
-        console.error('❌ Error crítico cargando categorías de Drive:', err);
+        console.error('❌ Error cargando categorías de Drive (Usando locales):', err);
       }
     }
     loadCategories();
