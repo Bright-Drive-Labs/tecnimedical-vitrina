@@ -139,10 +139,23 @@ export default function ProductForm() {
           >
             <input {...getInputProps()} />
             {preview ? (
-              <div className="relative w-full h-full">
+              <div className="relative w-full h-full group/preview">
                 <img src={preview} alt="Preview" className="w-full h-full object-contain" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center rounded-2xl transition-opacity">
-                  <p className="text-white text-xs font-bold uppercase tracking-widest">Cambiar imagen</p>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 flex flex-col items-center justify-center rounded-2xl transition-opacity gap-3">
+                  <p className="text-white text-[10px] font-black uppercase tracking-widest">Hacer clic para cambiar</p>
+                  <button 
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setImageFile(null);
+                      setPreview(null);
+                      setFormData({...formData, image_url: null, drive_id: null});
+                    }}
+                    className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                    title="Eliminar imagen"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                  </button>
                 </div>
               </div>
             ) : (
