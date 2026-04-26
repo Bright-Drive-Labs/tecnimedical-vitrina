@@ -96,7 +96,7 @@ export default function CategoryPage() {
           .from('products')
           .select('*')
           .in('category', category.dbCategories)
-          .not('drive_id', 'is', null);
+          .or('drive_id.not.is.null,image_url.not.is.null');
 
         if (error) {
           console.error('Error fetching products:', error);
