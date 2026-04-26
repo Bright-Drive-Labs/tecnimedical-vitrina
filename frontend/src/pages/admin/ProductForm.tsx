@@ -4,6 +4,8 @@ import { supabase } from '../../lib/supabase';
 import { useDropzone } from 'react-dropzone';
 import { getProductCategories } from '../../services/api';
 
+const DEFAULT_CATEGORIES = ['Movilidad', 'Ortopedia', 'Equipos e Insumos', 'Fisioterapia', 'Ayudas Sanitarias', 'Cuidado Personal', 'Accesorios'];
+
 const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
 export default function ProductForm() {
@@ -12,11 +14,13 @@ export default function ProductForm() {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [driveCategories, setDriveCategories] = useState<{name: string, id: string}[]>([]);
+  const [driveCategories, setDriveCategories] = useState<{name: string, id?: string}[]>(
+    DEFAULT_CATEGORIES.map(c => ({ name: c }))
+  );
   
   const [formData, setFormData] = useState({
     name: '',
-    category: '', // Empieza vacío hasta que carguen las de Drive
+    category: DEFAULT_CATEGORIES[0],
     subcategory: '',
     description: '',
     price: 0,
@@ -164,22 +168,14 @@ export default function ProductForm() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-6 md:py-12">
-      <div className="max-w-4xl mx-auto">
-        <header className="flex justify-between items-center mb-10 border-b-2 border-yellow-400 pb-6">
-          <div>
-            <h1 className="text-4xl font-black text-yellow-400 uppercase tracking-tighter">
-              {isEditing ? 'EDITAR PRODUCTO v4' : 'NUEVO PRODUCTO v4'}
-            </h1>
-            <p className="text-yellow-400/60 text-[10px] font-bold tracking-[0.3em] uppercase mt-1">Modo Debug de Emergencia Activo</p>
-          </div>
-          <button 
-            onClick={() => navigate('/admin')} 
-            className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-full font-bold uppercase tracking-widest text-[10px] transition-all border border-white/10"
-          >
-            Cerrar
-          </button>
-        </header>
+  return (
+    <div className="max-w-4xl mx-auto p-6 md:py-12">
+      <header className="flex justify-between items-center mb-10">
+        <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tight">
+          {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
+        </h1>
+        <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-slate-800 font-bold uppercase tracking-widest text-xs transition-colors">Volver</button>
+      </header>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Left Col: Image Upload */}
@@ -244,13 +240,9 @@ export default function ProductForm() {
                   className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
                   required
                 >
-                  {driveCategories.length === 0 ? (
-                    <option value="">Cargando categorías...</option>
-                  ) : (
-                    driveCategories.map(cat => (
-                      <option key={cat.id} value={cat.name}>{cat.name}</option>
-                    ))
-                  )}
+                  {driveCategories.map(cat => (
+                    <option key={cat.id || cat.name} value={cat.name}>{cat.name}</option>
+                  ))}
                 </select>
               </div>
               <div>
