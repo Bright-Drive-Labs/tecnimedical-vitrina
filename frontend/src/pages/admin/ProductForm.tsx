@@ -2,8 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useDropzone } from 'react-dropzone';
-
-const CATEGORIES = ['Movilidad', 'Ortopedia', 'Equipos e Insumos', 'Fisioterapia', 'Ayudas Sanitarias', 'Cuidado Personal', 'Accesorios'];
+import { getProductCategories } from '../../services/api';
 
 const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
@@ -13,10 +12,11 @@ export default function ProductForm() {
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [driveCategories, setDriveCategories] = useState<{name: string, id: string}[]>([]);
   
   const [formData, setFormData] = useState({
     name: '',
-    category: 'Movilidad',
+    category: '', // Empieza vacío hasta que carguen las de Drive
     subcategory: '',
     description: '',
     price: 0,
@@ -24,6 +24,24 @@ export default function ProductForm() {
     image_url: null as string | null,
     drive_id: null as string | null
   });
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const data = await getProductCategories();
+        if (data && data.folders) {
+          setDriveCategories(data.folders);
+          // Si no hay categoría seleccionada, ponemos la primera por defecto
+          if (!formData.category && data.folders.length > 0) {
+            setFormData(prev => ({ ...prev, category: data.folders[0].name }));
+          }
+        }
+      } catch (err) {
+        console.error('Error loading drive categories:', err);
+      }
+    }
+    loadCategories();
+  }, []);
 
   const isEditing = !!id;
 
@@ -185,13 +203,16 @@ export default function ProductForm() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Categoría</label>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Categoría</label>
                 <select 
                   value={formData.category}
-                  onChange={e => setFormData({...formData, category: e.target.value})}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20"
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
+                  required
                 >
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {driveCategories.map(cat => (
+                    <option key={cat.id} value={cat.name}>{cat.name}</option>
+                  ))}
                 </select>
               </div>
               <div>
