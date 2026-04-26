@@ -50,6 +50,37 @@ export default function AdminDashboard() {
     navigate('/admin/login');
   };
 
+  const handleDelete = async (product: Product) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar el producto "${product.name}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      // 1. Delete image from Storage if it's a Supabase URL
+      if (product.image_url) {
+        const urlParts = product.image_url.split('/product-images/');
+        if (urlParts.length > 1) {
+          const filePath = urlParts[1];
+          await supabase.storage.from('product-images').remove([filePath]);
+        }
+      }
+
+      // 2. Delete product from database
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', product.id);
+
+      if (error) throw error;
+
+      // 3. Update local state
+      setProducts(products.filter(p => p.id !== product.id));
+      alert('Producto eliminado correctamente');
+    } catch (err: any) {
+      alert(`Error al eliminar: ${err.message}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       <nav className="bg-white border-b border-slate-200 px-6 py-4">
@@ -128,6 +159,13 @@ export default function AdminDashboard() {
                        >
                         <span className="material-symbols-outlined text-[18px]">edit</span>
                        </Link>
+                       <button 
+                        onClick={() => handleDelete(prod)}
+                        className="text-slate-200 hover:text-red-500 transition-colors"
+                        title="Eliminar Producto"
+                       >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                       </button>
                     </div>
                   </div>
                 </div>
