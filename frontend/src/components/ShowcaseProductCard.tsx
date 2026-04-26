@@ -10,7 +10,8 @@ export interface Product {
   category: string;
   subcategory: string;
   description: string;
-  drive_id: string | null;
+  image_url?: string | null;
+  drive_id?: string | null;
   slug: string;
   price: number;
   stock_status: string;
@@ -24,7 +25,11 @@ const buildWhatsApp = (productName: string) => {
 export default function ShowcaseProductCard({ product, delay = 0 }: { product: Product; delay?: number }) {
   // Try to extract a short preview from description (usually the first bullet point)
   const previewText = product.description?.split('<br>')[0].replace('•', '').trim() || 'Equipo Médico Premium';
-  const imgUrl = product.drive_id ? getImageUrl(product.drive_id) : '/logo.png';
+  const imgUrl = product.image_url
+    ? getImageUrl(product.image_url)
+    : product.drive_id
+      ? getImageUrl(product.drive_id)
+      : '/logo.png';
 
   return (
     <motion.div 

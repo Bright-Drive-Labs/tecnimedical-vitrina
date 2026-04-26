@@ -71,8 +71,13 @@ export default function ProductDetailPage() {
   // If we arrived from a promo card, use that specific promo image (?img=driveId).
   // Otherwise fall back to the product's own drive_id from Supabase.
   const promoImgParam = searchParams.get('img');
-  const imageId = promoImgParam || product.drive_id;
-  const imgUrl = imageId ? getImageUrl(imageId) : '/logo.png';
+  const imgUrl = promoImgParam
+    ? getImageUrl(promoImgParam)
+    : product.image_url
+      ? getImageUrl(product.image_url)
+      : product.drive_id
+        ? getImageUrl(product.drive_id)
+        : '/logo.png';
 
   const getCategorySlug = (cat: string) => {
     const map: Record<string, string> = {
