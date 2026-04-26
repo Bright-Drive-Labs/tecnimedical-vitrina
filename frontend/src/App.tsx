@@ -256,6 +256,7 @@ function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/nuevo" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
+          <Route path="/admin/editar/:id" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
 
           {/* Fallback to Home */}
           <Route path="*" element={<HomePage onOpenCatalog={() => setIsLeadModalOpen(true)} />} />

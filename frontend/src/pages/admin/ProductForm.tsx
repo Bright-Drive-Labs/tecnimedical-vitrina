@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useDropzone } from 'react-dropzone';
 
@@ -8,6 +8,7 @@ const CATEGORIES = ['Movilidad', 'Ortopedia', 'Equipos e Insumos', 'Fisioterapia
 const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
 export default function ProductForm() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -19,8 +20,40 @@ export default function ProductForm() {
     subcategory: '',
     description: '',
     price: 0,
-    stock_status: 'IN_STOCK'
+    stock_status: 'IN_STOCK',
+    image_url: null as string | null,
+    drive_id: null as string | null
   });
+
+  const isEditing = !!id;
+
+  useEffect(() => {
+    if (isEditing) {
+      async function fetchProduct() {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (data && !error) {
+          setFormData({
+            name: data.name,
+            category: data.category,
+            subcategory: data.subcategory || '',
+            description: data.description || '',
+            price: data.price || 0,
+            stock_status: data.stock_status || 'IN_STOCK',
+            image_url: data.image_url,
+            drive_id: data.drive_id
+          });
+          if (data.image_url) setPreview(data.image_url);
+          else if (data.drive_id) setPreview(`https://bright-drive-backend-agent-production.up.railway.app/api/image/${data.drive_id}`);
+        }
+      }
+      fetchProduct();
+    }
+  }, [id, isEditing]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -39,13 +72,9 @@ export default function ProductForm() {
     setLoading(true);
 
     try {
-      // 1. Get user and tenant (from existing user metadata or tenant logic)
-      // For now, we assume the user is authenticated and we'll use the hardcoded tenant for Tecnimedical
       const tenantId = '63e2d67c-9b1a-4d3b-8f32-5a2e6f9c8d1b';
-      
-      let imageUrl = null;
+      let imageUrl = formData.image_url;
 
-      // 2. Upload image if exists
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
@@ -64,22 +93,25 @@ export default function ProductForm() {
         imageUrl = publicUrl;
       }
 
-      // 3. Insert product
-      const slug = `${slugify(formData.name)}-${Math.floor(Math.random() * 1000)}`;
+      const slug = isEditing ? undefined : `${slugify(formData.name)}-${Math.floor(Math.random() * 1000)}`;
       
-      const { error } = await supabase
-        .from('products')
-        .insert([{
-          ...formData,
-          slug,
-          tenant_id: tenantId,
-          image_url: imageUrl,
-          drive_id: null // Explicitly null if using new URL
-        }]);
+      const payload: any = {
+        ...formData,
+        tenant_id: tenantId,
+        image_url: imageUrl,
+      };
 
+      if (!isEditing) payload.slug = slug;
+      if (imageFile) payload.drive_id = null; // Clear drive_id if new image uploaded
+
+      const query = isEditing 
+        ? supabase.from('products').update(payload).eq('id', id)
+        : supabase.from('products').insert([payload]);
+
+      const { error } = await query;
       if (error) throw error;
 
-      alert('¡Producto creado con éxito!');
+      alert(isEditing ? '¡Producto actualizado!' : '¡Producto creado!');
       navigate('/admin');
     } catch (err: any) {
       alert(`Error: ${err.message}`);
@@ -89,9 +121,11 @@ export default function ProductForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 md:py-12">
       <header className="flex justify-between items-center mb-10">
-        <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tight">Nuevo Producto</h1>
+        <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tight">
+          {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
+        </h1>
         <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-slate-800 font-bold uppercase tracking-widest text-xs transition-colors">Volver</button>
       </header>
 
@@ -105,7 +139,12 @@ export default function ProductForm() {
           >
             <input {...getInputProps()} />
             {preview ? (
-              <img src={preview} alt="Preview" className="w-full h-full object-contain" />
+              <div className="relative w-full h-full">
+                <img src={preview} alt="Preview" className="w-full h-full object-contain" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center rounded-2xl transition-opacity">
+                  <p className="text-white text-xs font-bold uppercase tracking-widest">Cambiar imagen</p>
+                </div>
+              </div>
             ) : (
               <div className="text-center p-10">
                 <span className="material-symbols-outlined text-5xl text-slate-300 mb-4">add_photo_alternate</span>

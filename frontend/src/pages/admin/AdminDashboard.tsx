@@ -120,9 +120,14 @@ export default function AdminDashboard() {
                   <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">{prod.category}</p>
                   <h3 className="font-bold text-slate-800 text-sm line-clamp-1">{prod.name}</h3>
                   <div className="mt-4 flex justify-between items-center">
-                    <Link to={`/producto/${prod.slug}`} className="text-[10px] font-bold text-brand-blue hover:underline uppercase">Ver Publicado</Link>
+                    <Link to={`/producto/${prod.slug}`} target="_blank" className="text-[10px] font-bold text-brand-blue hover:underline uppercase">Ver Publicado</Link>
                     <div className="flex gap-2">
-                       <button className="text-slate-300 hover:text-slate-600"><span className="material-symbols-outlined text-[18px]">edit</span></button>
+                       <Link 
+                        to={`/admin/editar/${prod.id}`}
+                        className="text-slate-300 hover:text-brand-blue transition-colors"
+                       >
+                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                       </Link>
                     </div>
                   </div>
                 </div>
