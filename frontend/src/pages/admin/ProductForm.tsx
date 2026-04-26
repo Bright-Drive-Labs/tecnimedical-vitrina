@@ -168,7 +168,6 @@ export default function ProductForm() {
   };
 
   return (
-  return (
     <div className="max-w-4xl mx-auto p-6 md:py-12">
       <header className="flex justify-between items-center mb-10">
         <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tight">
