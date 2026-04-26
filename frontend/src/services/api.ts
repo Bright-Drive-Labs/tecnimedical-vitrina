@@ -64,8 +64,13 @@ export const captureLead = async (
 };
 
 /** Retorna la URL directa de una imagen desde el proxy de Drive */
-export const getImageUrl = (fileId: string): string =>
-  `${BASE_URL}/api/image/${fileId}`;
+export const getImageUrl = (idOrUrl: string) => {
+  if (!idOrUrl) return '/logo.png';
+  // If it's a full URL (starts with http), return it directly
+  if (idOrUrl.startsWith('http')) return idOrUrl;
+  
+  return `${BASE_URL}/api/image/${idOrUrl}`;
+};
 
 /** Obtiene las categorías de productos desde Drive */
 export const getProductCategories = async () => {

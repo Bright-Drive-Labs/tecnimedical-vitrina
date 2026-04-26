@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import ProductDetail from './components/ProductDetail';
 import LeadCaptureModal from './components/LeadCaptureModal';
 import ChatWidget from './components/ChatWidget';
@@ -13,6 +13,12 @@ import Navbar from './components/Navbar';
 import PromoSection from './components/PromoSection';
 import InstagramReelSection from './components/InstagramReelSection';
 import Footer from './components/Footer';
+
+// Admin Pages
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ProductForm from './pages/admin/ProductForm';
+import { supabase } from './lib/supabase';
 
 // Types
 interface Product {
@@ -155,30 +161,61 @@ function HomePage({ onOpenCatalog }: { onOpenCatalog: () => void }) {
   );
 }
 
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) return null;
+  if (!session) return <Navigate to="/admin/login" />;
+
+  return <>{children}</>;
+}
+
 function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
 
   return (
     <div className="bg-background font-body text-on-background antialiased overflow-x-hidden min-h-screen flex flex-col">
       <ProductDetail product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       <LeadCaptureModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} />
-      <ChatWidget />
-      <Navbar onOpenCatalog={() => setIsLeadModalOpen(true)} />
+      {!isAdmin && <ChatWidget />}
+      {!isAdmin && <Navbar onOpenCatalog={() => setIsLeadModalOpen(true)} />}
 
-      <main className="flex-1 pt-24 md:pt-40">
+      <main className={`flex-1 ${isAdmin ? 'pt-0' : 'pt-24 md:pt-40'}`}>
         <Routes>
           <Route path="/" element={<HomePage onOpenCatalog={() => setIsLeadModalOpen(true)} />} />
           <Route path="/categoria/:slug" element={<CategoryPage />} />
           <Route path="/producto/:slug" element={<ProductDetailPage />} />
           <Route path="/buscar" element={<SearchResultsPage />} />
           <Route path="/promociones" element={<PromoPage />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/nuevo" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
+
           {/* Fallback to Home */}
           <Route path="*" element={<HomePage onOpenCatalog={() => setIsLeadModalOpen(true)} />} />
         </Routes>
       </main>
 
-      <Footer />
+      {!isAdmin && <Footer />}
     </div>
   );
 }
