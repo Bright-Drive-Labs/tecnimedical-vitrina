@@ -27,18 +27,26 @@ export default function ProductForm() {
 
   useEffect(() => {
     async function loadCategories() {
+      console.log('🔍 Intentando cargar categorías desde Drive...');
       try {
         const data = await getProductCategories();
-        // El backend devuelve { success: true, albums: [...] }
-        if (data && data.albums) {
-          setDriveCategories(data.albums);
-          // Si no hay categoría seleccionada, ponemos la primera por defecto
-          if (!formData.category && data.albums.length > 0) {
-            setFormData(prev => ({ ...prev, category: data.albums[0].name }));
+        console.log('📦 Respuesta de la API de Categorías:', data);
+        
+        // Probamos ambas posibilidades por seguridad
+        const folders = data.albums || data.folders || data.data;
+        
+        if (folders && Array.isArray(folders)) {
+          setDriveCategories(folders);
+          console.log(`✅ ${folders.length} categorías cargadas con éxito.`);
+          
+          if (!formData.category && folders.length > 0) {
+            setFormData(prev => ({ ...prev, category: folders[0].name }));
           }
+        } else {
+          console.warn('⚠️ La API respondió pero no se encontró un array de carpetas válido:', data);
         }
       } catch (err) {
-        console.error('Error loading drive categories:', err);
+        console.error('❌ Error crítico cargando categorías de Drive:', err);
       }
     }
     loadCategories();
