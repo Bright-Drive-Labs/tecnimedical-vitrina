@@ -111,6 +111,13 @@ export default function Footer() {
             src="/logo.png"
           />
           <p className="text-slate-500 text-xs leading-relaxed max-w-[200px]">© 2026 Tecnimedical. Suministros Médicos Venezuela.</p>
+          <Link 
+            to="/admin" 
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-brand-blue transition-all mt-4 group"
+          >
+            <span className="material-symbols-outlined text-[14px]">lock</span>
+            Acceso Admin
+          </Link>
         </div>
 
         {/* Productos — Col 2 */}

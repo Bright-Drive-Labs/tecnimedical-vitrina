@@ -200,7 +200,15 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
 
           {/* Social Icons / Mobile Toggle / Right Actions */}
           <div className="flex items-center gap-1 md:gap-3 ml-2 lg:ml-0">
-            {/* Keeping it simple — no icons for now as per user request */}
+            {/* Admin Login Shortcut */}
+            <Link 
+              to="/admin" 
+              className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-brand-blue bg-slate-50 hover:bg-white rounded-lg transition-all border border-transparent hover:border-slate-100"
+              title="Acceso Admin"
+            >
+              <span className="material-symbols-outlined text-[20px]">lock</span>
+            </Link>
+
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden w-10 h-10 flex items-center justify-center text-slate-700 bg-slate-50 rounded-lg"
@@ -288,6 +296,14 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
           >
             <span className="material-symbols-outlined text-[18px]">home</span>
             Inicio
+          </Link>
+          <Link
+            to="/admin"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="py-3 px-2 text-slate-700 font-semibold border-b border-slate-100 hover:text-brand-blue transition-colors flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined text-[18px]">lock</span>
+            Acceso Admin
           </Link>
           {NAV_LINKS.map(link => (
             <button
