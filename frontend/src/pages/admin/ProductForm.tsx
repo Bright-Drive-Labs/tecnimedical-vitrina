@@ -164,13 +164,22 @@ export default function ProductForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 md:py-12">
-      <header className="flex justify-between items-center mb-10">
-        <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tight">
-          {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
-        </h1>
-        <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-slate-800 font-bold uppercase tracking-widest text-xs transition-colors">Volver</button>
-      </header>
+    <div className="min-h-screen bg-slate-900 p-6 md:py-12">
+      <div className="max-w-4xl mx-auto">
+        <header className="flex justify-between items-center mb-10 border-b-2 border-yellow-400 pb-6">
+          <div>
+            <h1 className="text-4xl font-black text-yellow-400 uppercase tracking-tighter">
+              {isEditing ? 'EDITAR PRODUCTO v4' : 'NUEVO PRODUCTO v4'}
+            </h1>
+            <p className="text-yellow-400/60 text-[10px] font-bold tracking-[0.3em] uppercase mt-1">Modo Debug de Emergencia Activo</p>
+          </div>
+          <button 
+            onClick={() => navigate('/admin')} 
+            className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-full font-bold uppercase tracking-widest text-[10px] transition-all border border-white/10"
+          >
+            Cerrar
+          </button>
+        </header>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Left Col: Image Upload */}
