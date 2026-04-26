@@ -223,7 +223,7 @@ export default function ProductForm() {
             disabled={loading}
             className="w-full bg-brand-blue text-white rounded-xl py-4 text-xs font-black uppercase tracking-widest hover:bg-[#1a4b8a] transition-all shadow-md active:scale-95 disabled:opacity-50"
           >
-            {loading ? 'Guardando...' : 'Crear Producto'}
+            {loading ? 'Guardando...' : isEditing ? 'Actualizar Producto' : 'Crear Producto'}
           </button>
         </div>
       </form>
