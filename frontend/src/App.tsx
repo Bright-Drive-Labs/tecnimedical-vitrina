@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import ProductDetail from './components/ProductDetail';
 import LeadCaptureModal from './components/LeadCaptureModal';
 import ChatWidget from './components/ChatWidget';
