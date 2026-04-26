@@ -29,11 +29,12 @@ export default function ProductForm() {
     async function loadCategories() {
       try {
         const data = await getProductCategories();
-        if (data && data.folders) {
-          setDriveCategories(data.folders);
+        // El backend devuelve { success: true, albums: [...] }
+        if (data && data.albums) {
+          setDriveCategories(data.albums);
           // Si no hay categoría seleccionada, ponemos la primera por defecto
-          if (!formData.category && data.folders.length > 0) {
-            setFormData(prev => ({ ...prev, category: data.folders[0].name }));
+          if (!formData.category && data.albums.length > 0) {
+            setFormData(prev => ({ ...prev, category: data.albums[0].name }));
           }
         }
       } catch (err) {
