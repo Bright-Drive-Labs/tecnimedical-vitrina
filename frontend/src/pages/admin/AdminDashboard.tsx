@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { getImageUrl } from '../../services/api';
+import { getImageUrl, deleteProduct } from '../../services/api';
 import Fuse from 'fuse.js';
 
 interface Product {
@@ -56,24 +56,18 @@ export default function AdminDashboard() {
     }
 
     try {
-      // 1. Delete image from Storage if it's a Supabase URL
+      // 1. Eliminar imagen de Supabase Storage si existe
       if (product.image_url) {
         const urlParts = product.image_url.split('/product-images/');
         if (urlParts.length > 1) {
-          const filePath = urlParts[1];
-          await supabase.storage.from('product-images').remove([filePath]);
+          await supabase.storage.from('product-images').remove([urlParts[1]]);
         }
       }
 
-      // 2. Delete product from database
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', product.id);
+      // 2. Eliminar producto via backend (usa service_role, bypasa RLS)
+      await deleteProduct(product.id);
 
-      if (error) throw error;
-
-      // 3. Update local state
+      // 3. Actualizar estado local
       setProducts(products.filter(p => p.id !== product.id));
       alert('Producto eliminado correctamente');
     } catch (err: any) {

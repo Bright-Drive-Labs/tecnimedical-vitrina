@@ -92,25 +92,33 @@ export const getProductsByCategory = async (folderId: string) => {
     return [];
   }
 };
+/** Elimina un producto usando el backend con service_role (bypasa RLS) */
+export const deleteProduct = async (id: string): Promise<void> => {
+  const res = await fetch(`${BASE_URL}/api/admin/products/${id}`, {
+    method: 'DELETE',
+  });
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || `Error ${res.status} al eliminar producto`);
+  }
+};
+
 /** Sincroniza una imagen de Supabase a la estructura organizada de Drive */
 export const syncToDrive = async (params: {
   imageUrl: string;
   category: string;
   subcategory: string;
   name: string;
-}) => {
-  try {
-    const res = await fetch(`${BASE_URL}/api/admin/sync-to-drive`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...params,
-        parentFolderId: import.meta.env.VITE_DRIVE_FOLDER_ID
-      }),
-    });
-    return res.json();
-  } catch (error) {
-    console.error('Error syncing to Drive:', error);
-    return { success: false };
-  }
+}): Promise<{ success: boolean; driveFileId?: string; error?: string }> => {
+  const res = await fetch(`${BASE_URL}/api/admin/sync-to-drive`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...params,
+      parentFolderId: import.meta.env.VITE_DRIVE_FOLDER_ID
+    }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `Error ${res.status} en sync-to-drive`);
+  return data;
 };

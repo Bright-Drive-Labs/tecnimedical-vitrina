@@ -149,15 +149,15 @@ export default function ProductForm() {
       if (imageFile && imageUrl) {
         try {
           const { syncToDrive } = await import('../../services/api');
-          await syncToDrive({
+          const syncResult = await syncToDrive({
             imageUrl: imageUrl,
             category: formData.category,
             subcategory: formData.subcategory || 'General',
             name: formData.name
           });
-          console.log('✅ Doble respaldo completado: Supabase + Google Drive');
-        } catch (syncErr) {
-          console.error('⚠️ Error en el respaldo de Drive (pero se guardó en Supabase):', syncErr);
+          console.log('✅ Doble respaldo completado: Supabase + Google Drive', syncResult);
+        } catch (syncErr: any) {
+          console.error('⚠️ FALLO sync-to-drive:', syncErr?.message || syncErr);
         }
       }
 
