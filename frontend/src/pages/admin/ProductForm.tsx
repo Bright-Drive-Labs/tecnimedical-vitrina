@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useDropzone } from 'react-dropzone';
-import { getProductCategories } from '../../services/api';
+import { getProductCategories, getSubcategories } from '../../services/api';
 
 const DEFAULT_CATEGORIES = ['Movilidad', 'Ortopedia', 'Equipos e Insumos', 'Fisioterapia', 'Ayudas Sanitarias', 'Cuidado Personal', 'Accesorios'];
 
@@ -17,6 +17,7 @@ export default function ProductForm() {
   const [driveCategories, setDriveCategories] = useState<{name: string, id?: string}[]>(
     DEFAULT_CATEGORIES.map(c => ({ name: c }))
   );
+  const [driveSubcategories, setDriveSubcategories] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -59,6 +60,18 @@ export default function ProductForm() {
   }, []);
 
   const isEditing = !!id;
+
+  // Carga las sub-carpetas de Drive cuando cambia la categoría seleccionada
+  useEffect(() => {
+    const selected = driveCategories.find(c => c.name === formData.category);
+    if (!selected?.id) { setDriveSubcategories([]); return; }
+    getSubcategories(selected.id).then(subs => {
+      setDriveSubcategories(subs);
+      if (!isEditing && subs.length > 0) {
+        setFormData(prev => ({ ...prev, subcategory: subs[0] }));
+      }
+    });
+  }, [formData.category, driveCategories]);
 
   useEffect(() => {
     if (isEditing) {
@@ -248,13 +261,25 @@ export default function ProductForm() {
               </div>
               <div>
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Subcategoría</label>
-                <input 
-                  type="text" 
-                  value={formData.subcategory}
-                  onChange={e => setFormData({...formData, subcategory: e.target.value})}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2"
-                  placeholder="Ej. Manual"
-                />
+                {driveSubcategories.length > 0 ? (
+                  <select
+                    value={formData.subcategory}
+                    onChange={e => setFormData({...formData, subcategory: e.target.value})}
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
+                  >
+                    {driveSubcategories.map(sub => (
+                      <option key={sub} value={sub}>{sub}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={formData.subcategory}
+                    onChange={e => setFormData({...formData, subcategory: e.target.value})}
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
+                    placeholder="Ej. Silla de Ruedas"
+                  />
+                )}
               </div>
             </div>
 

@@ -82,6 +82,18 @@ export const getProductCategories = async () => {
   return res.json();
 };
 
+/** Obtiene las subcategorías (sub-carpetas) de una categoría en Drive */
+export const getSubcategories = async (folderId: string): Promise<string[]> => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/gallery/albums/${folderId}`);
+    const data = await res.json();
+    const folders = data.albums || data.folders || [];
+    return folders.map((f: any) => f.name || '').filter(Boolean);
+  } catch {
+    return [];
+  }
+};
+
 /** Obtiene los productos dentro de una categoría */
 export const getProductsByCategory = async (folderId: string) => {
   try {
