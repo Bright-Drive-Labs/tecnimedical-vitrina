@@ -95,8 +95,7 @@ export default function CategoryPage() {
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .in('category', category.dbCategories)
-          .or('drive_id.not.is.null,image_url.not.is.null');
+          .eq('is_visible', true);
 
         if (error) {
           console.error('Error fetching products:', error);
@@ -104,10 +103,17 @@ export default function CategoryPage() {
         } else if (data && isMounted) {
           const grouped: Record<string, any[]> = {};
           data.forEach((p: any) => {
-            const rawSub = p.subcategory || 'General';
-            const sub = normalizeSubcategory(rawSub);
-            if (!grouped[sub]) grouped[sub] = [];
-            grouped[sub].push(p);
+            // Check if product belongs to this category (case-insensitive)
+            const matchesCategory = category.dbCategories.some(c => 
+              c.toLowerCase() === p.category?.toLowerCase()
+            );
+            
+            if (matchesCategory) {
+              const rawSub = p.subcategory || 'General';
+              const sub = normalizeSubcategory(rawSub);
+              if (!grouped[sub]) grouped[sub] = [];
+              grouped[sub].push(p);
+            }
           });
           setProductsBySubcategory(grouped);
         }

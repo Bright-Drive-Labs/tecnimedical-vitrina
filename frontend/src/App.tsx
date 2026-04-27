@@ -187,7 +187,7 @@ function FeaturedProducts() {
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .or('drive_id.not.is.null,image_url.not.is.null')
+          .eq('is_visible', true)
           .order('created_at', { ascending: false })
           .limit(20);
 

@@ -20,14 +20,14 @@ export default function SearchResultsPage() {
         const { data } = await supabase
           .from('products')
           .select('*')
-          .ilike('name', `%${query}%`)
-          .or('drive_id.not.is.null,image_url.not.is.null');
+          .eq('is_visible', true)
+          .ilike('name', `%${query}%`);
 
         if (data && data.length > 0) {
           setProducts(data);
         } else {
           // 2. Fuzzy Fallback
-          const { data: all } = await supabase.from('products').select('*').or('drive_id.not.is.null,image_url.not.is.null');
+          const { data: all } = await supabase.from('products').select('*').eq('is_visible', true);
           if (all) {
             const fuse = new Fuse(all, { keys: ['name'], threshold: 0.4 });
             const fuzzyResults = fuse.search(query).map(r => r.item);

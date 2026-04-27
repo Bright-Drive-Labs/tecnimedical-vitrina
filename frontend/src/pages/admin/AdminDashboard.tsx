@@ -11,6 +11,7 @@ interface Product {
   image_url: string | null;
   drive_id: string | null;
   slug: string;
+  is_visible: boolean;
 }
 
 export default function AdminDashboard() {
@@ -23,7 +24,7 @@ export default function AdminDashboard() {
     async function fetchProducts() {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, category, image_url, drive_id, slug')
+        .select('id, name, category, image_url, drive_id, slug, is_visible')
         .eq('tenant_id', '63e2d67c-9b1a-4d3b-8f32-5a2e6f9c8d1b')
         .order('created_at', { ascending: false });
 
@@ -133,13 +134,16 @@ export default function AdminDashboard() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map(prod => (
-              <div key={prod.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm group">
-                <div className="h-48 bg-slate-50 flex items-center justify-center p-4 border-b border-slate-100">
+              <div key={prod.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm group relative">
+                <div className="h-48 bg-slate-50 flex items-center justify-center p-4 border-b border-slate-100 relative">
                   <img 
                     src={getImageUrl(prod.image_url || prod.drive_id || '')} 
                     alt={prod.name} 
                     className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
                   />
+                  <div className={`absolute top-2 right-2 px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-widest shadow-sm ${prod.is_visible ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                    {prod.is_visible ? 'Público' : 'Oculto'}
+                  </div>
                 </div>
                 <div className="p-4">
                   <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">{prod.category}</p>
