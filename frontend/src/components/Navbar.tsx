@@ -206,13 +206,12 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
           {/* Social Icons / Mobile Toggle / Right Actions */}
           <div className="flex items-center gap-1 md:gap-3 ml-2 lg:ml-0">
             {/* Admin Login Shortcut */}
-            <Link 
-              to="/admin" 
-              className="flex items-center gap-2 px-4 py-2 bg-brand-blue text-white hover:bg-[#1a4b8a] rounded-xl transition-all shadow-md active:scale-95 group"
+            <Link
+              to="/admin"
+              className="flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 hover:bg-brand-blue hover:text-white text-slate-500 transition-all active:scale-95"
               title="Acceso Panel de Control"
             >
-              <span className="material-symbols-outlined text-[18px] group-hover:rotate-12 transition-transform">admin_panel_settings</span>
-              <span className="text-[11px] font-black uppercase tracking-widest">Admin</span>
+              <span className="material-symbols-outlined text-[22px]">person</span>
             </Link>
 
             <button 
@@ -306,10 +305,9 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
           <Link
             to="/admin"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="py-3 px-2 text-slate-700 font-semibold border-b border-slate-100 hover:text-brand-blue transition-colors flex items-center gap-2"
+            className="py-3 px-2 text-slate-700 font-semibold border-b border-slate-100 hover:text-brand-blue transition-colors flex items-center justify-center"
           >
-            <span className="material-symbols-outlined text-[18px]">lock</span>
-            Acceso Admin
+            <span className="material-symbols-outlined text-[24px]">person</span>
           </Link>
           {NAV_LINKS.map(link => (
             <button
