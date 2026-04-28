@@ -310,7 +310,7 @@ export default function ProductForm() {
             </div>
 
             <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <div className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex items-center cursor-pointer">
                 <input 
                   type="checkbox" 
                   className="sr-only peer"
@@ -318,7 +318,7 @@ export default function ProductForm() {
                   onChange={e => setFormData({...formData, is_visible: e.target.checked})}
                 />
                 <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
-              </div>
+              </label>
               <div className="flex flex-col">
                 <span className="text-xs font-black uppercase tracking-widest text-slate-800">Visible al público</span>
                 <span className="text-[10px] text-slate-500 font-medium">{formData.is_visible ? 'El producto aparecerá en el catálogo' : 'Oculto del catálogo público'}</span>
