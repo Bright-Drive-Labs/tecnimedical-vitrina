@@ -47,7 +47,7 @@ const CATEGORIES: Record<string, { label: string; description: string; dbCategor
   'accesorios-repuestos': {
     label: 'Accesorios',
     description: 'Repuestos originales y accesorios para todos tus equipos médicos.',
-    dbCategories: ['NA', 'Sin Categoría', 'Sin categoria', 'Accesorios', 'accesorios'],
+    dbCategories: ['NA', 'Sin Categoría', 'Sin categoria', 'Accesorios', 'accesorios', 'Accesorios y repuestos', 'ACCESORIOS Y REPUESTOS'],
     image: '/Cat_Accesorios.png',
   },
 };

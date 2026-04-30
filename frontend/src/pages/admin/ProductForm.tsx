@@ -42,11 +42,13 @@ export default function ProductForm() {
         const folders = data.albums || data.folders || (Array.isArray(data) ? data : null);
         
         if (folders && Array.isArray(folders) && folders.length > 0) {
-          // Mapeamos para asegurar que tengan la propiedad 'name'
-          const formattedFolders = folders.map((f: any) => ({
-            name: f.name || f.text || 'Sin nombre',
-            id: f.id
-          }));
+          // Mapeamos para asegurar que tengan la propiedad 'name' y filtramos la "ortopedia" minúscula
+          const formattedFolders = folders
+            .map((f: any) => ({
+              name: f.name || f.text || 'Sin nombre',
+              id: f.id
+            }))
+            .filter((f: any) => f.name !== 'ortopedia');
           
           setDriveCategories(formattedFolders);
           console.log(`✅ ${formattedFolders.length} categorías sincronizadas desde Drive.`);
