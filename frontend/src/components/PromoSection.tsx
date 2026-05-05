@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getImageUrl } from '../services/api';
+import { getImageUrl, getProductsByCategory } from '../services/api';
 
 const WHATSAPP = '584147148895';
 const PROMO_FOLDER_ID = '1x1TWXLJWr_UIiPRzHPbKB5jJWt2E0QQn';
@@ -51,16 +51,8 @@ export default function PromoSection() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Usamos getImageUrl indirecatmente aquí para la galería, 
-    // pero fetch necesita la URL base de la galería. 
-    // Como api.ts no exporta BASE_URL, construiremos el fetch usando una ruta relativa si es posible, 
-    // pero para ser consistentes con api.ts, lo ideal sería tener una función en api.ts.
-    // Por ahora, usaremos getImageUrl('') para obtener la base.
-    const apiBase = getImageUrl('').replace('/api/image/', '');
-    
-    fetch(`${apiBase}/api/gallery/${PROMO_FOLDER_ID}`)
-      .then(r => r.json())
-      .then(data => setImages(data.images ?? []))
+    getProductsByCategory(PROMO_FOLDER_ID)
+      .then(imgs => setImages(imgs))
       .catch(() => setImages([]))
       .finally(() => setLoading(false));
   }, []);
