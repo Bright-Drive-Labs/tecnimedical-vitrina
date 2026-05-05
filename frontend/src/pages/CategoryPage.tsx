@@ -64,9 +64,9 @@ export default function CategoryPage() {
     
     let normalized = sub.trim().toLowerCase();
     
-    // Unify Ortorepdia
+    // Unify Ortopedia
     if (normalized.includes('blanda')) return 'Blanda';
-    if (normalized.includes('ortesis') || normalized.includes('órtesis')) return 'Órtesis';
+    if (normalized.includes('ortesis') || normalized.includes('órtesis') || normalized.includes('ortesís')) return 'Órtesis';
     if (normalized.includes('colchones') || normalized.includes('cojines')) return 'Colchones y Cojines Ortopédicos';
     
     // Unify Movilidad
