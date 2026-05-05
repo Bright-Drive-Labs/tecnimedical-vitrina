@@ -24,7 +24,7 @@ const buildWhatsApp = (productName: string) => {
 
 export default function ShowcaseProductCard({ product, delay = 0 }: { product: Product; delay?: number }) {
   // Try to extract a short preview from description (usually the first bullet point)
-  const previewText = product.description?.split('<br>')[0].replace('•', '').trim() || 'Equipo Médico Premium';
+  const previewText = product.description?.split('<br>')[0].replace('•', '').trim() || '';
   const imgUrl = product.image_url
     ? getImageUrl(product.image_url)
     : product.drive_id
