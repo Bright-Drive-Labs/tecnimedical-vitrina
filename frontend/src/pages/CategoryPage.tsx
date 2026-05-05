@@ -105,7 +105,7 @@ export default function CategoryPage() {
           data.forEach((p: any) => {
             // Check if product belongs to this category (case-insensitive)
             const matchesCategory = category.dbCategories.some(c => 
-              c.toLowerCase() === p.category?.toLowerCase()
+              c.trim().toLowerCase() === p.category?.trim().toLowerCase()
             );
             
             if (matchesCategory) {
