@@ -307,7 +307,7 @@ export default function ProductForm() {
                 className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2"
               >
                 <option value="IN_STOCK">En Stock</option>
-                <option value="CONSULT">Bajo Consulta</option>
+                <option value="CONSULT">Consultar disponibilidad</option>
               </select>
             </div>
 

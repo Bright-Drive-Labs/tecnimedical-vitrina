@@ -80,7 +80,7 @@ export default function ShowcaseProductCard({ product, delay = 0 }: { product: P
             ) : (
               <div className="flex items-center text-[10px] text-amber-500 font-bold uppercase tracking-tight">
                 <span className="material-symbols-outlined text-[14px] mr-1.5">schedule</span>
-                Bajo Consulta
+                Consultar disponibilidad
               </div>
             )}
           </div>

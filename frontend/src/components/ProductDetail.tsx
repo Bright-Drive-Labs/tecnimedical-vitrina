@@ -26,7 +26,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose }) => {
     "Modelo": product.ref,
     "Certificación": "CE / FDA",
     "Garantía": "2 Años",
-    "Disponibilidad": product.stock_status === 'CONSULT' ? "Bajo Consulta" : "Inmediata",
+    "Disponibilidad": product.stock_status === 'CONSULT' ? "Consultar disponibilidad" : "Inmediata",
   };
 
   const demoBenefits = [

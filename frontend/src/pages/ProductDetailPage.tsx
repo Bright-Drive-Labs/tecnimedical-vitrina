@@ -143,7 +143,7 @@ export default function ProductDetailPage() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <div className="bg-amber-100 text-amber-700 text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">
-                    {product.stock_status === 'IN_STOCK' ? 'En Stock' : 'Bajo Consulta'}
+                    {product.stock_status === 'IN_STOCK' ? 'En Stock' : 'Consultar disponibilidad'}
                   </div>
                   <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">{product.subcategory}</span>
                 </div>
