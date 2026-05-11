@@ -28,7 +28,8 @@ export default function ProductForm() {
     stock_status: 'IN_STOCK',
     image_url: null as string | null,
     drive_id: null as string | null,
-    is_visible: false
+    is_visible: false,
+    is_promo: false
   });
 
   useEffect(() => {
@@ -95,7 +96,8 @@ export default function ProductForm() {
             stock_status: data.stock_status || 'IN_STOCK',
             image_url: data.image_url,
             drive_id: data.drive_id,
-            is_visible: data.is_visible ?? true
+            is_visible: data.is_visible ?? true,
+            is_promo: data.is_promo ?? false
           });
           if (data.image_url) setPreview(data.image_url);
           else if (data.drive_id) setPreview(`https://bright-drive-backend-agent-production.up.railway.app/api/image/${data.drive_id}`);
@@ -311,19 +313,37 @@ export default function ProductForm() {
               </select>
             </div>
 
-            <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="sr-only peer"
-                  checked={formData.is_visible}
-                  onChange={e => setFormData({...formData, is_visible: e.target.checked})}
-                />
-                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
-              </label>
-              <div className="flex flex-col">
-                <span className="text-xs font-black uppercase tracking-widest text-slate-800">Visible al público</span>
-                <span className="text-[10px] text-slate-500 font-medium">{formData.is_visible ? 'El producto aparecerá en el catálogo' : 'Oculto del catálogo público'}</span>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer"
+                    checked={formData.is_visible}
+                    onChange={e => setFormData({...formData, is_visible: e.target.checked})}
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
+                </label>
+                <div className="flex flex-col">
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-800">Visible al público</span>
+                  <span className="text-[10px] text-slate-500 font-medium">{formData.is_visible ? 'El producto aparecerá en el catálogo' : 'Oculto del catálogo público'}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer"
+                    checked={formData.is_promo}
+                    onChange={e => setFormData({...formData, is_promo: e.target.checked})}
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-green"></div>
+                </label>
+                <div className="flex flex-col">
+                  <span className="text-xs font-black uppercase tracking-widest text-emerald-800">Producto en Promoción</span>
+                  <span className="text-[10px] text-emerald-600 font-medium">{formData.is_promo ? 'Se mostrará en la sección de Promociones' : 'No destacado como promoción'}</span>
+                </div>
               </div>
             </div>
           </div>

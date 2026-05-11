@@ -6,32 +6,6 @@ import { getImageUrl } from '../services/api';
 
 const WHATSAPP = '584147148895';
 
-// ─── Explicit map: Drive Promo Image ID → Product Slug ────────────────────
-// Each entry = promo image in Drive → exact product slug in Supabase
-const PROMO_MAP: { imageId: string; slug: string }[] = [
-  { imageId: '16IjmtwX92fcXDDauNCSCpr34ftrk_bFd', slug: 'silla-para-ducha-con-pines-183' },               // SILLA CON RESPALDO → pines + con respaldo
-  { imageId: '1IMZop3qQpTKCo1YMVY-1S5iHtRzJrBvz', slug: 'silla-para-ducha-con-pines-183' },               // SILLA PARA BAÑO SIN RESPALDO → pines + sin respaldo
-  { imageId: '1PxO7vnykVkHmw2K3oyJy2w14Ns_4H1Yp', slug: 'silla-para-ducha-con-brazos-comfort-plus-184' }, // SILLA CON APOYABRAZO Y RESPALDO → Comfort Plus
-  { imageId: '18O-1rUuoKWTYCbbag1ctwvKJTDqr5X4P', slug: 'monitor-de-presin-arterial-con-altavoz-87' },
-  { imageId: '1O2EowEGRpPDTyQmTFCk8nDYEZTi4nRjK', slug: 'caminador-con-asiento-de-lona-80' },
-  { imageId: '1hygayPP8yvk3hP6qPrBoyBEeYujpBkJY', slug: 'caminador-doble-funcin-76' },
-  { imageId: '1nNfjGOF-IAkFx6ZVLILbDh6b363Amw2e', slug: 'silla-de-ruedas-estndar-81' },
-  { imageId: '1MBwCTtxjt3lXNePLd3T8UgeJQbwsTUoF', slug: 'compresor-nebulizador-nube-1000-113' },
-];
-
-
-// Display name per promo image (overrides the DB product name on the card)
-const PROMO_NAME_MAP: Record<string, string> = {
-  '16IjmtwX92fcXDDauNCSCpr34ftrk_bFd': 'Silla para ducha con pines y respaldo',
-  '1IMZop3qQpTKCo1YMVY-1S5iHtRzJrBvz': 'Silla para ducha con pines',
-  '1PxO7vnykVkHmw2K3oyJy2w14Ns_4H1Yp': 'Silla para ducha con brazos Comfort Plus',
-  '18O-1rUuoKWTYCbbag1ctwvKJTDqr5X4P': 'Monitor de presión arterial con altavoz',
-  '1O2EowEGRpPDTyQmTFCk8nDYEZTi4nRjK': 'Caminador con asiento de lona',
-  '1hygayPP8yvk3hP6qPrBoyBEeYujpBkJY': 'Caminador doble función',
-  '1nNfjGOF-IAkFx6ZVLILbDh6b363Amw2e': 'Silla de ruedas estándar',
-  '1MBwCTtxjt3lXNePLd3T8UgeJQbwsTUoF': 'Nebulizador (compresor pediátrico)',
-};
-
 const buildWhatsApp = (name: string) => {
   const msg = encodeURIComponent(`Hola Tecnimedical, me interesa el producto en promoción: *${name}*. ¿Pueden darme más información y precio?`);
   return `https://wa.me/${WHATSAPP}?text=${msg}`;
@@ -39,15 +13,14 @@ const buildWhatsApp = (name: string) => {
 
 interface PromoProduct {
   id: string;
-  name: string;         // raw DB name
-  promoName: string;    // display name from PROMO_NAME_MAP
+  name: string;
   category: string;
   subcategory: string;
   description: string;
+  image_url: string | null;
   drive_id: string | null;
   slug: string;
   stock_status: string;
-  promoImageId: string; // specific variant image from the promo Drive folder
 }
 
 export default function PromoPage() {
@@ -59,33 +32,16 @@ export default function PromoPage() {
     async function loadPromos() {
       setLoading(true);
       try {
-        // Get unique slugs (avoid duplicates from the map)
-        const uniqueSlugs = [...new Set(PROMO_MAP.map(p => p.slug))];
-        
         const { data, error } = await supabase
           .from('products')
-          .select('id, name, category, subcategory, description, drive_id, slug, stock_status')
-          .in('slug', uniqueSlugs);
+          .select('id, name, category, subcategory, description, image_url, drive_id, slug, stock_status')
+          .eq('is_visible', true)
+          .eq('is_promo', true);
 
         if (error) throw error;
 
         if (data) {
-          // Build ONE card per PROMO_MAP entry (not deduplicated by slug)
-          // so both silla variants appear as separate cards.
-          const dbBySlug: Record<string, any> = {};
-          data.forEach((p: any) => { dbBySlug[p.slug] = p; });
-
-          const enriched: PromoProduct[] = PROMO_MAP
-            .filter(({ slug }) => dbBySlug[slug]) // only entries found in DB
-            .map(({ imageId, slug }) => {
-              const p = dbBySlug[slug];
-              return {
-                ...p,
-                promoName: PROMO_NAME_MAP[imageId] || p.name,
-                promoImageId: imageId,
-              };
-            });
-          setProducts(enriched);
+          setProducts(data);
         }
       } catch (err) {
         console.error('Error loading promo products:', err);
@@ -193,18 +149,18 @@ export default function PromoPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {displayProducts.map((prod, i) => {
                 const previewText = prod.description?.split('<br>')[0].replace('•', '').trim() || 'Equipo Médico en Promoción';
-                const imgUrl = getImageUrl(prod.promoImageId);
+                const imgUrl = prod.image_url || (prod.drive_id ? getImageUrl(prod.drive_id) : '/logo.png');
 
                 return (
                   <motion.div
-                    key={prod.promoImageId}
+                    key={prod.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: i * 0.05 }}
                     className="group relative"
                   >
                     <Link
-                      to={`/producto/${prod.slug}?img=${prod.promoImageId}`}
+                      to={`/producto/${prod.slug}`}
                       className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full cursor-pointer"
                     >
                       {/* Badge DISPONIBLE */}
@@ -216,7 +172,7 @@ export default function PromoPage() {
                       <div className="relative h-60 md:h-72 bg-white p-6 flex justify-center items-center overflow-hidden border-b border-slate-100">
                         <img
                           src={imgUrl}
-                          alt={prod.promoName}
+                          alt={prod.name}
                           className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 will-change-transform"
                           onError={(e) => { (e.target as HTMLImageElement).src = '/logo.png'; }}
                         />
@@ -228,7 +184,7 @@ export default function PromoPage() {
                           {prod.category}
                         </p>
                         <h3 className="font-bold text-slate-800 leading-snug line-clamp-2 text-sm md:text-base group-hover:text-brand-blue transition-colors">
-                          {prod.promoName}
+                          {prod.name}
                         </h3>
                         <p className="text-xs text-slate-500 mt-2 line-clamp-2 hidden sm:block leading-relaxed">
                           {previewText}
@@ -246,7 +202,7 @@ export default function PromoPage() {
                         <button
                           onClick={(e) => {
                             e.preventDefault();
-                            window.open(buildWhatsApp(prod.promoName), '_blank');
+                            window.open(buildWhatsApp(prod.name), '_blank');
                           }}
                           className="w-full flex items-center justify-center gap-2 bg-brand-blue text-white rounded-xl py-2.5 text-xs font-black uppercase tracking-widest hover:bg-[#1a4b8a] transition-colors shadow-sm active:scale-95"
                         >

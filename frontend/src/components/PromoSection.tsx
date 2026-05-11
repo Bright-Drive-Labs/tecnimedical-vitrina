@@ -1,42 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getImageUrl, getProductsByCategory } from '../services/api';
+import { supabase } from '../lib/supabase';
+import { getImageUrl } from '../services/api';
+import type { Product } from './ShowcaseProductCard';
 
 const WHATSAPP = '584147148895';
-const PROMO_FOLDER_ID = '1x1TWXLJWr_UIiPRzHPbKB5jJWt2E0QQn';
-
-interface DriveImage {
-  id: string;
-  name: string;
-}
-
-const formatName = (filename: string) =>
-  filename.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ').toLowerCase().replace(/(^|\s)\S/gu, c => c.toUpperCase());
-
-// ─── Explicit map: Drive Image ID → Product Slug ──────────────────────────
-const PROMO_IMAGE_MAP: Record<string, string> = {
-  '16IjmtwX92fcXDDauNCSCpr34ftrk_bFd': 'silla-para-ducha-con-pines-183',               // SILLA CON RESPALDO → pines + con respaldo
-  '1IMZop3qQpTKCo1YMVY-1S5iHtRzJrBvz': 'silla-para-ducha-con-pines-183',               // SILLA PARA BAÑO SIN RESPALDO → pines + sin respaldo
-  '1PxO7vnykVkHmw2K3oyJy2w14Ns_4H1Yp': 'silla-para-ducha-con-brazos-comfort-plus-184', // SILLA CON APOYABRAZO Y RESPALDO → Comfort Plus
-  '18O-1rUuoKWTYCbbag1ctwvKJTDqr5X4P': 'monitor-de-presin-arterial-con-altavoz-87',
-  '1O2EowEGRpPDTyQmTFCk8nDYEZTi4nRjK': 'caminador-con-asiento-de-lona-80',
-  '1hygayPP8yvk3hP6qPrBoyBEeYujpBkJY': 'caminador-doble-funcin-76',
-  '1nNfjGOF-IAkFx6ZVLILbDh6b363Amw2e': 'silla-de-ruedas-estndar-81',
-  '1MBwCTtxjt3lXNePLd3T8UgeJQbwsTUoF': 'compresor-nebulizador-nube-1000-113',
-};
-
-// Real product names — so the carousel card title matches the product page title
-const PROMO_NAME_MAP: Record<string, string> = {
-  '16IjmtwX92fcXDDauNCSCpr34ftrk_bFd': 'Silla para ducha con pines y respaldo',
-  '1IMZop3qQpTKCo1YMVY-1S5iHtRzJrBvz': 'Silla para ducha con pines',
-  '1PxO7vnykVkHmw2K3oyJy2w14Ns_4H1Yp': 'Silla para ducha con brazos Comfort Plus',
-  '18O-1rUuoKWTYCbbag1ctwvKJTDqr5X4P': 'Monitor de presión arterial con altavoz',
-  '1O2EowEGRpPDTyQmTFCk8nDYEZTi4nRjK': 'Caminador con asiento de lona',
-  '1hygayPP8yvk3hP6qPrBoyBEeYujpBkJY': 'Caminador doble función',
-  '1nNfjGOF-IAkFx6ZVLILbDh6b363Amw2e': 'Silla de ruedas estándar',
-  '1MBwCTtxjt3lXNePLd3T8UgeJQbwsTUoF': 'Nebulizador (compresor pediátrico)',
-};
 
 const buildWhatsApp = (name: string) => {
   const msg = encodeURIComponent(`Hola Tecnimedical, me interesa el producto en promoción: *${name}*. ¿Pueden darme más información y precio?`);
@@ -44,23 +13,31 @@ const buildWhatsApp = (name: string) => {
 };
 
 export default function PromoSection() {
-  const [images, setImages] = useState<DriveImage[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    getProductsByCategory(PROMO_FOLDER_ID)
-      .then(imgs => setImages(imgs))
-      .catch(() => setImages([]))
-      .finally(() => setLoading(false));
+    async function fetchPromos() {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('is_visible', true)
+          .eq('is_promo', true);
+          
+        if (error) throw error;
+        setProducts(data || []);
+      } catch (err) {
+        console.error('Error loading promo products:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPromos();
   }, []);
-
-  const getTargetUrl = (imageId: string) => {
-    const slug = PROMO_IMAGE_MAP[imageId];
-    return slug ? `/producto/${slug}?img=${imageId}` : null;
-  };
 
   useEffect(() => {
     const updateItemsPerPage = () => {
@@ -77,13 +54,13 @@ export default function PromoSection() {
   const paginate = (newDirection: number) => {
     setIndex((prev) => {
       let nextIndex = prev + newDirection;
-      if (nextIndex < 0) nextIndex = Math.max(0, images.length - itemsPerPage);
-      else if (nextIndex > images.length - itemsPerPage) nextIndex = 0;
+      if (nextIndex < 0) nextIndex = Math.max(0, products.length - itemsPerPage);
+      else if (nextIndex > products.length - itemsPerPage) nextIndex = 0;
       return nextIndex;
     });
   };
 
-  if (!loading && images.length === 0) return null;
+  if (!loading && products.length === 0) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-20 overflow-hidden">
@@ -109,14 +86,14 @@ export default function PromoSection() {
             <button 
               onClick={() => paginate(-1)}
               className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-brand-blue hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-current"
-              disabled={images.length <= itemsPerPage}
+              disabled={products.length <= itemsPerPage}
             >
               <span className="material-symbols-outlined">chevron_left</span>
             </button>
             <button 
               onClick={() => paginate(1)}
               className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-brand-blue hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-current"
-              disabled={images.length <= itemsPerPage}
+              disabled={products.length <= itemsPerPage}
             >
               <span className="material-symbols-outlined">chevron_right</span>
             </button>
@@ -145,13 +122,13 @@ export default function PromoSection() {
             animate={{ x: `calc(-${index * (100 / itemsPerPage)}% - ${index * (index === 0 ? 0 : 24 / itemsPerPage)}px)` }}
             transition={{ type: 'spring', stiffness: 200, damping: 25 }}
           >
-            {images.map((item) => {
-              const name = PROMO_NAME_MAP[item.id] || formatName(item.name);
-              const targetUrl = getTargetUrl(item.id);
-              if (!targetUrl) return null; // skip images not mapped yet
+            {products.map((prod) => {
+              const targetUrl = `/producto/${prod.slug}`;
+              const imgUrl = prod.image_url || (prod.drive_id ? getImageUrl(prod.drive_id) : '/logo.png');
+
               return (
                 <motion.div
-                  key={item.id}
+                  key={prod.id}
                   className="flex-shrink-0 w-[calc(100%/1)] sm:w-[calc(100%/2-12px)] lg:w-[calc(100%/3-16px)] bg-white border border-slate-100 hover:shadow-2xl transition-all group flex flex-col relative rounded-2xl overflow-hidden"
                 >
                   {/* Badge */}
@@ -162,8 +139,8 @@ export default function PromoSection() {
                   {/* Image */}
                   <Link to={targetUrl} className="aspect-[4/3] overflow-hidden bg-white p-8 relative block">
                     <img
-                      src={getImageUrl(item.id)}
-                      alt={name}
+                      src={imgUrl}
+                      alt={prod.name}
                       className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 ease-out"
                       onError={e => { (e.target as HTMLImageElement).src = '/logo.png'; }}
                     />
@@ -173,10 +150,10 @@ export default function PromoSection() {
                   {/* Body */}
                   <div className="p-6 md:p-8 flex flex-col gap-4 flex-1 bg-slate-50/30">
                     <div className="flex flex-col gap-1">
-                      <p className="text-[10px] font-bold text-brand-green uppercase tracking-[0.2em]">Tecnimedical Stock</p>
+                      <p className="text-[10px] font-bold text-brand-green uppercase tracking-[0.2em]">{prod.category || 'Tecnimedical Stock'}</p>
                       <h3 className="text-lg md:text-xl font-extrabold text-brand-blue leading-tight line-clamp-2 min-h-[3.5rem] hover:text-brand-green transition-colors">
                         <Link to={targetUrl}>
-                          {name}
+                          {prod.name}
                         </Link>
                       </h3>
                     </div>
@@ -184,7 +161,7 @@ export default function PromoSection() {
                     <div className="mt-auto flex flex-col gap-4">
                       <div className="w-full h-px bg-slate-100" />
                       <a
-                        href={buildWhatsApp(name)}
+                        href={buildWhatsApp(prod.name)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full flex items-center justify-center gap-3 bg-brand-blue border-2 border-brand-blue text-white hover:bg-white hover:text-brand-blue py-3 font-black uppercase tracking-widest text-xs transition-all active:scale-95 rounded-full shadow-sm"
@@ -202,9 +179,9 @@ export default function PromoSection() {
       </div>
 
       {/* Progress Dots */}
-      {!loading && images.length > itemsPerPage && (
+      {!loading && products.length > itemsPerPage && (
         <div className="flex justify-center gap-2 mt-12">
-          {Array.from({ length: images.length - itemsPerPage + 1 }).map((_, i) => (
+          {Array.from({ length: products.length - itemsPerPage + 1 }).map((_, i) => (
             <button
               key={i}
               onClick={() => setIndex(i)}
