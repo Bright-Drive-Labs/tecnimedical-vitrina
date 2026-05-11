@@ -70,8 +70,14 @@ export default function ShowcaseProductCard({ product, delay = 0 }: { product: P
             {previewText}
           </p>
           
+          {/* Spacer to push content down */}
+          <div className="flex-1" />
+        </div>
+
+        {/* Footer Action */}
+        <div className="px-5 pb-5 space-y-4">
           {/* Status Checks (Estilo CVS) */}
-          <div className="mt-4 space-y-1">
+          <div className="">
             {product.stock_status === 'IN_STOCK' ? (
               <div className="flex items-center text-[10px] text-emerald-600 font-bold uppercase tracking-tight">
                 <span className="material-symbols-outlined text-[14px] mr-1.5">check_circle</span>
@@ -84,10 +90,7 @@ export default function ShowcaseProductCard({ product, delay = 0 }: { product: P
               </div>
             )}
           </div>
-        </div>
 
-        {/* Footer Action */}
-        <div className="px-5 pb-5">
           <button
             onClick={(e) => {
               e.preventDefault();
