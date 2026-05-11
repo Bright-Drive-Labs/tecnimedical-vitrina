@@ -1,12 +1,25 @@
 /**
+ * Lógica inteligente para contacto por WhatsApp vs Formulario.
+ */
+
+export const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
+};
+
+/**
+ * Retorna el texto sugerido para el botón según el dispositivo.
+ */
+export const getContactButtonText = (defaultText = 'Cotizar por WhatsApp') => {
+  return isMobileDevice() ? defaultText : 'Solicitar Presupuesto';
+};
+
+/**
  * Lógica inteligente para contacto por WhatsApp.
  * - En móvil: Abre la aplicación de WhatsApp directamente.
  * - En computadora: Redirige a la página de contacto interno para evitar forzar descarga de app.
  */
 export const handleWhatsAppContact = (productName?: string) => {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
-  
-  if (isMobile) {
+  if (isMobileDevice()) {
     const WHATSAPP = '584147148895';
     const baseMsg = productName 
       ? `Hola Tecnimedical, me interesa información sobre: *${productName}*.`

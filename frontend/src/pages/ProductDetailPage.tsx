@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import type { Product } from '../components/ShowcaseProductCard';
 
 import { getImageUrl } from '../services/api';
-import { handleWhatsAppContact } from '../utils/navigation';
+import { handleWhatsAppContact, getContactButtonText } from '../utils/navigation';
 
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -185,7 +185,7 @@ export default function ProductDetailPage() {
                   className="w-full flex items-center justify-center gap-2 bg-brand-blue text-white rounded-xl py-4 text-sm font-black uppercase tracking-widest hover:bg-[#1a4b8a] transition-all shadow-md hover:shadow-lg active:scale-95 mt-6"
                 >
                   <span className="material-symbols-outlined">chat</span>
-                  Cotizar por WhatsApp
+                  {getContactButtonText('Cotizar por WhatsApp')}
                 </button>
                 
                 <p className="text-[10px] text-center text-slate-400 font-medium">

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { getImageUrl } from '../services/api';
-import { handleWhatsAppContact } from '../utils/navigation';
+import { handleWhatsAppContact, getContactButtonText } from '../utils/navigation';
 
 export interface Product {
   id: string;
@@ -93,7 +93,7 @@ export default function ShowcaseProductCard({ product, delay = 0 }: { product: P
             className="w-full flex items-center justify-center gap-2 bg-brand-blue text-white rounded-xl py-2.5 text-xs font-black uppercase tracking-widest hover:bg-[#1a4b8a] transition-colors shadow-sm active:scale-95"
           >
             <span className="material-symbols-outlined text-[18px]">add_shopping_cart</span>
-            Cotizar
+            {getContactButtonText('Cotizar')}
           </button>
         </div>
       </Link>
