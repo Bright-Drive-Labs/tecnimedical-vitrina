@@ -65,6 +65,39 @@ export const captureLead = async (
   }
 };
 
+/** Envía una consulta formal por correo electrónico desde el formulario de contacto */
+export const sendContactMessage = async (params: {
+  name: string;
+  email: string;
+  whatsapp: string;
+  subject: string;
+  message: string;
+}): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const res = await fetch(`${BASE_URL}/api/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...params,
+        tenant_id: TENANT_ID
+      }),
+    });
+    
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || `HTTP ${res.status}`);
+    }
+    
+    return await res.json();
+  } catch (err) {
+    console.error('Error sending contact message:', err);
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : 'Error de conexión con el servidor' 
+    };
+  }
+};
+
 /** Retorna la URL directa de una imagen desde el proxy de Drive */
 export const getImageUrl = (idOrUrl: string) => {
   if (!idOrUrl) return '/logo.png';

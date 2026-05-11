@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Phone, Mail, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
-import { captureLead } from '../services/api';
+import { sendContactMessage } from '../services/api';
 import { useLocation } from 'react-router-dom';
 
 export default function ContactPage() {
@@ -24,11 +24,11 @@ export default function ContactPage() {
     setState('loading');
 
     try {
-      // Usamos el servicio de captura de leads existente para registrar la consulta
-      const result = await captureLead(
-        formData.name, 
-        `58${formData.whatsapp.replace(/\D/g, '')}`
-      );
+      // Usamos el nuevo servicio de contacto que envía correos
+      const result = await sendContactMessage({
+        ...formData,
+        whatsapp: `58${formData.whatsapp.replace(/\D/g, '')}`
+      });
 
       if (result.success) {
         setState('success');
@@ -161,16 +161,28 @@ export default function ContactPage() {
                 <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">WhatsApp</label>
                 <div className="flex">
                   <span className="bg-slate-100 border border-slate-200 border-r-0 rounded-l-xl px-4 py-3.5 text-slate-500 text-sm flex items-center">+58</span>
-                  <input 
-                    required
-                    type="tel"
-                    placeholder="414 000 0000"
-                    value={formData.whatsapp}
-                    onChange={e => setFormData({...formData, whatsapp: e.target.value})}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-r-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue outline-none transition-all text-slate-800"
-                  />
-                </div>
+                <input 
+                  required
+                  type="tel"
+                  placeholder="414 000 0000"
+                  value={formData.whatsapp}
+                  onChange={e => setFormData({...formData, whatsapp: e.target.value})}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-r-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue outline-none transition-all text-slate-800"
+                />
               </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Correo Electrónico</label>
+              <input 
+                required
+                type="email"
+                placeholder="ejemplo@correo.com"
+                value={formData.email}
+                onChange={e => setFormData({...formData, email: e.target.value})}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue outline-none transition-all text-slate-800"
+              />
             </div>
 
             <div className="space-y-2">
