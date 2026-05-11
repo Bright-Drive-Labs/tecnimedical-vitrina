@@ -142,8 +142,8 @@ export default function ProductDetailPage() {
             <div className="sticky top-24 space-y-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className="bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">
-                    {product.stock_status === 'IN_STOCK' ? 'En Stock' : 'Consultar'}
+                  <div className="bg-amber-100 text-amber-700 text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider">
+                    {product.stock_status === 'IN_STOCK' ? 'En Stock' : 'Bajo Consulta'}
                   </div>
                   <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">{product.subcategory}</span>
                 </div>
