@@ -72,10 +72,17 @@ export default function ShowcaseProductCard({ product, delay = 0 }: { product: P
           
           {/* Status Checks (Estilo CVS) */}
           <div className="mt-4 space-y-1">
-            <div className="flex items-center text-[10px] text-emerald-600 font-bold uppercase tracking-tight">
-              <span className="material-symbols-outlined text-[14px] mr-1.5">check_circle</span>
-              Entrega inmediata
-            </div>
+            {product.stock_status === 'IN_STOCK' ? (
+              <div className="flex items-center text-[10px] text-emerald-600 font-bold uppercase tracking-tight">
+                <span className="material-symbols-outlined text-[14px] mr-1.5">check_circle</span>
+                Entrega inmediata
+              </div>
+            ) : (
+              <div className="flex items-center text-[10px] text-amber-500 font-bold uppercase tracking-tight">
+                <span className="material-symbols-outlined text-[14px] mr-1.5">schedule</span>
+                Consultar disponibilidad
+              </div>
+            )}
           </div>
         </div>
 

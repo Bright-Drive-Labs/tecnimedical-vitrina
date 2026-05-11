@@ -11,6 +11,7 @@ interface Product {
   description: string;
   specs?: Record<string, string>;
   benefits?: string[];
+  stock_status?: string;
 }
 
 interface ProductDetailProps {
@@ -25,7 +26,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product, onClose }) => {
     "Modelo": product.ref,
     "Certificación": "CE / FDA",
     "Garantía": "2 Años",
-    "Disponibilidad": "Inmediata",
+    "Disponibilidad": product.stock_status === 'CONSULT' ? "Bajo Consulta" : "Inmediata",
   };
 
   const demoBenefits = [
