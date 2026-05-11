@@ -191,17 +191,36 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
                 section.scrollIntoView({ behavior: 'smooth' });
               }
             }}
-            className="hidden lg:flex flex-shrink-0 items-center gap-2 px-2 bg-transparent transition-all group ml-2"
+            className="hidden md:flex flex-shrink-0 items-center gap-2 px-2 bg-transparent transition-all group ml-1"
             title="Ver Tiendas Físicas"
           >
-            <div className="w-9 h-9 flex items-center justify-center text-brand-green bg-brand-green/5 rounded-full group-hover:bg-brand-green/10 transition-all">
-              <span className="material-symbols-outlined text-[24px]">storefront</span>
+            <div className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-brand-green bg-brand-green/5 rounded-full group-hover:bg-brand-green/10 transition-all">
+              <span className="material-symbols-outlined text-[20px] md:text-[24px]">storefront</span>
             </div>
             <div className="flex flex-col items-start leading-none pointer-events-none">
-              <span className="text-[11px] font-black uppercase tracking-tighter text-brand-blue group-hover:text-brand-green transition-colors">Tiendas físicas</span>
-              <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">San Cristóbal, Táchira</span>
+              <span className="text-[10px] md:text-[11px] font-black uppercase tracking-tighter text-brand-blue group-hover:text-brand-green transition-colors">Tiendas físicas</span>
+              <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">San Cristóbal</span>
             </div>
           </motion.button>
+
+          {/* Descargar Catálogo Shortcut — Desktop only */}
+          {onOpenCatalog && (
+            <motion.button
+              whileHover={{ x: 3 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={onOpenCatalog}
+              className="hidden md:flex flex-shrink-0 items-center gap-2 px-2 bg-transparent transition-all group ml-1 border-l border-slate-100 pl-3"
+              title="Descargar Catálogo PDF"
+            >
+              <div className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center text-brand-blue bg-brand-blue/5 rounded-full group-hover:bg-brand-blue/10 transition-all">
+                <span className="material-symbols-outlined text-[20px] md:text-[24px]">download</span>
+              </div>
+              <div className="flex flex-col items-start leading-none pointer-events-none">
+                <span className="text-[10px] md:text-[11px] font-black uppercase tracking-tighter text-brand-blue group-hover:text-brand-green transition-colors">Descargar Catálogo</span>
+                <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">Versión PDF</span>
+              </div>
+            </motion.button>
+          )}
 
           {/* Social Icons / Mobile Toggle / Right Actions */}
           <div className="flex items-center gap-1 md:gap-3 ml-2 lg:ml-0">
@@ -323,7 +342,7 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
               onClick={() => { setIsMobileMenuOpen(false); onOpenCatalog(); }}
               className="mt-3 bg-brand-blue text-white py-3 font-black uppercase tracking-widest text-sm rounded-lg"
             >
-              Ver Catálogo
+              Descargar Catálogo
             </button>
           )}
         </div>

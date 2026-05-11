@@ -328,6 +328,20 @@ function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
 
+  useEffect(() => {
+    // Auto-open lead modal after 5 seconds on first visit
+    if (!isAdmin) {
+      const hasSeenModal = localStorage.getItem('tecnimedical_seen_lead_modal');
+      if (!hasSeenModal) {
+        const timer = setTimeout(() => {
+          setIsLeadModalOpen(true);
+          localStorage.setItem('tecnimedical_seen_lead_modal', 'true');
+        }, 5000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isAdmin]);
+
   return (
     <div className="bg-background font-body text-on-background antialiased overflow-x-hidden min-h-screen flex flex-col">
       <ProductDetail product={selectedProduct} onClose={() => setSelectedProduct(null)} />
