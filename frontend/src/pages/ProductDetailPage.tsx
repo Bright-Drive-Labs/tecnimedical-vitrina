@@ -6,13 +6,7 @@ import { supabase } from '../lib/supabase';
 import type { Product } from '../components/ShowcaseProductCard';
 
 import { getImageUrl } from '../services/api';
-
-const WHATSAPP = '584147148895';
-
-const buildWhatsApp = (productName: string) => {
-  const msg = encodeURIComponent(`Hola Tecnimedical, me interesa el producto: *${productName}*. ¿Pueden darme más información y precio?`);
-  return `https://wa.me/${WHATSAPP}?text=${msg}`;
-};
+import { handleWhatsAppContact } from '../utils/navigation';
 
 export default function ProductDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -186,15 +180,13 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                <a
-                  href={buildWhatsApp(product.name)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => handleWhatsAppContact(product.name)}
                   className="w-full flex items-center justify-center gap-2 bg-brand-blue text-white rounded-xl py-4 text-sm font-black uppercase tracking-widest hover:bg-[#1a4b8a] transition-all shadow-md hover:shadow-lg active:scale-95 mt-6"
                 >
                   <span className="material-symbols-outlined">chat</span>
                   Cotizar por WhatsApp
-                </a>
+                </button>
                 
                 <p className="text-[10px] text-center text-slate-400 font-medium">
                   Atención inmediata de lunes a sábado de 8am a 6pm.

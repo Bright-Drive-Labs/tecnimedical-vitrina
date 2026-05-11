@@ -3,13 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { getImageUrl } from '../services/api';
-
-const WHATSAPP = '584147148895';
-
-const buildWhatsApp = (name: string) => {
-  const msg = encodeURIComponent(`Hola Tecnimedical, me interesa el producto en promoción: *${name}*. ¿Pueden darme más información y precio?`);
-  return `https://wa.me/${WHATSAPP}?text=${msg}`;
-};
+import { handleWhatsAppContact } from '../utils/navigation';
 
 interface PromoProduct {
   id: string;
@@ -202,7 +196,7 @@ export default function PromoPage() {
                         <button
                           onClick={(e) => {
                             e.preventDefault();
-                            window.open(buildWhatsApp(prod.name), '_blank');
+                            handleWhatsAppContact(prod.name);
                           }}
                           className="w-full flex items-center justify-center gap-2 bg-brand-blue text-white rounded-xl py-2.5 text-xs font-black uppercase tracking-widest hover:bg-[#1a4b8a] transition-colors shadow-sm active:scale-95"
                         >

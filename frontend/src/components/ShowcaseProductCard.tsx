@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { getImageUrl } from '../services/api';
-
-const WHATSAPP = '584147148895';
+import { handleWhatsAppContact } from '../utils/navigation';
 
 export interface Product {
   id: string;
@@ -16,11 +15,6 @@ export interface Product {
   price: number;
   stock_status: string;
 }
-
-const buildWhatsApp = (productName: string) => {
-  const msg = encodeURIComponent(`Hola Tecnimedical, me interesa el producto: *${productName}*. ¿Pueden darme más información y cotización?`);
-  return `https://wa.me/${WHATSAPP}?text=${msg}`;
-};
 
 export default function ShowcaseProductCard({ product, delay = 0 }: { product: Product; delay?: number }) {
   // Try to extract a short preview from description (usually the first bullet point)
@@ -94,7 +88,7 @@ export default function ShowcaseProductCard({ product, delay = 0 }: { product: P
           <button
             onClick={(e) => {
               e.preventDefault();
-              window.open(buildWhatsApp(product.name), '_blank');
+              handleWhatsAppContact(product.name);
             }}
             className="w-full flex items-center justify-center gap-2 bg-brand-blue text-white rounded-xl py-2.5 text-xs font-black uppercase tracking-widest hover:bg-[#1a4b8a] transition-colors shadow-sm active:scale-95"
           >

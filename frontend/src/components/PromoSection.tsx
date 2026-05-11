@@ -3,14 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { getImageUrl } from '../services/api';
+import { handleWhatsAppContact } from '../utils/navigation';
 import type { Product } from './ShowcaseProductCard';
-
-const WHATSAPP = '584147148895';
-
-const buildWhatsApp = (name: string) => {
-  const msg = encodeURIComponent(`Hola Tecnimedical, me interesa el producto en promoción: *${name}*. ¿Pueden darme más información y precio?`);
-  return `https://wa.me/${WHATSAPP}?text=${msg}`;
-};
 
 export default function PromoSection() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -160,15 +154,13 @@ export default function PromoSection() {
                     
                     <div className="mt-auto flex flex-col gap-4">
                       <div className="w-full h-px bg-slate-100" />
-                      <a
-                        href={buildWhatsApp(prod.name)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => handleWhatsAppContact(prod.name)}
                         className="w-full flex items-center justify-center gap-3 bg-brand-blue border-2 border-brand-blue text-white hover:bg-white hover:text-brand-blue py-3 font-black uppercase tracking-widest text-xs transition-all active:scale-95 rounded-full shadow-sm"
                       >
                         <span className="material-symbols-outlined text-[20px]">add_shopping_cart</span>
                         Consultar Disponibilidad
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </motion.div>

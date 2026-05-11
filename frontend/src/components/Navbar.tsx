@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { label: 'Cuidado Personal',   slug: 'cuidado-personal' },
   { label: 'Accesorios',         slug: 'accesorios-repuestos' },
   { label: 'Promociones',        slug: '__promociones__' },
+  { label: 'Contacto',           slug: '__contacto__' },
 ];
 
 interface NavbarProps {
@@ -90,6 +91,8 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
     setIsMobileMenuOpen(false);
     if (slug === '__promociones__') {
       navigate('/promociones');
+    } else if (slug === '__contacto__') {
+      navigate('/contacto');
     } else {
       navigate(`/categoria/${slug}`);
     }
@@ -260,23 +263,26 @@ export default function Navbar({ onOpenCatalog }: NavbarProps) {
           </Link>
           <span className="text-slate-200 select-none">|</span>
           {NAV_LINKS.map(link => {
-            const isActive = (link.slug === '__promociones__' ? location.pathname === '/promociones' : location.pathname === `/categoria/${link.slug}`);
-            const isPromo = link.slug === '__promociones__';
+            const isActive = 
+              link.slug === '__promociones__' ? location.pathname === '/promociones' : 
+              link.slug === '__contacto__' ? location.pathname === '/contacto' : 
+              location.pathname === `/categoria/${link.slug}`;
+            
+            const isSpecial = link.slug === '__promociones__' || link.slug === '__contacto__';
 
             return (
               <motion.button
                 key={link.slug}
                 onClick={() => handleCategoryClick(link.slug)}
-                whileHover={isPromo ? {
+                whileHover={isSpecial ? {
                   scale: 1.1,
-                  rotate: [0, -2, 2, -2, 0],
                   transition: { duration: 0.3 }
                 } : { scale: 1.05 }}
                 className={`px-3 py-2.5 text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
                   isActive
                     ? 'text-brand-green border-b-2 border-brand-green'
-                    : isPromo
-                      ? 'text-brand-green bg-brand-green/5 rounded-full'
+                    : isSpecial
+                      ? 'text-brand-green bg-brand-green/5 rounded-full mx-1'
                       : 'text-slate-600 hover:text-brand-green'
                 }`}
               >

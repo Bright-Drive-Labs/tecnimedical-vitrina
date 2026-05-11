@@ -9,6 +9,7 @@ import CategoryPage from './pages/CategoryPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import SearchResultsPage from './pages/SearchResultsPage';
 import PromoPage from './pages/PromoPage';
+import ContactPage from './pages/ContactPage';
 import Navbar from './components/Navbar';
 import PromoSection from './components/PromoSection';
 import InstagramReelSection from './components/InstagramReelSection';
@@ -356,6 +357,7 @@ function App() {
           <Route path="/producto/:slug" element={<ProductDetailPage />} />
           <Route path="/buscar" element={<SearchResultsPage />} />
           <Route path="/promociones" element={<PromoPage />} />
+          <Route path="/contacto" element={<ContactPage />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
