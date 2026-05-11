@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Phone, Mail, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
 import { captureLead } from '../services/api';

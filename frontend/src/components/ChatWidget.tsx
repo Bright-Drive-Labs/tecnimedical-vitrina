@@ -114,6 +114,7 @@ const MessageBubble = ({ message }: { message: Message }) => {
         {renderText(message.text)}
         {/* Botón WhatsApp adicional cuando hay gancho */}
         {hookProduct && (
+          <button
             onClick={(e) => {
               e.preventDefault();
               handleWhatsAppContact(hookProduct);
@@ -253,13 +254,6 @@ export default function ChatWidget() {
     }
   };
 
-  /** Construye la URL de WhatsApp con un mensaje contextual pre-llenado. */
-  const getWhatsAppUrl = () => {
-    const msg = encodeURIComponent(
-      'Hola, estuve consultando sobre equipos médicos en su web y me gustaría más información.'
-    );
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
-  };
 
   // ─── Render ─────────────────────────────────────────────────────────────────
 
