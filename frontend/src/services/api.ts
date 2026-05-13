@@ -78,7 +78,11 @@ export const sendContactMessage = async (params: {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ...params,
+        name: params.name,
+        email: params.email,
+        phone: params.whatsapp,
+        reason: params.subject,
+        message: params.message,
         tenant_id: TENANT_ID
       }),
     });
