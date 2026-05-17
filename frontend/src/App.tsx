@@ -132,9 +132,6 @@ function HomePage({ onOpenCatalog }: { onOpenCatalog: () => void }) {
       {/* Promociones */}
       <PromoSection />
 
-      {/* Catálogo Completo */}
-      <FeaturedProducts />
-
       {/* Categorías Especializadas — Carousel */}
       <CategoryCarousel />
 
@@ -167,91 +164,7 @@ function HomePage({ onOpenCatalog }: { onOpenCatalog: () => void }) {
 
 const BACKEND = 'https://bright-drive-backend-agent-production.up.railway.app';
 
-function getProductImg(product: any): string {
-  if (product.image_url) return product.image_url;
-  if (product.drive_id) return `${BACKEND}/api/image/${product.drive_id}`;
-  return '/logo.png';
-}
 
-function FeaturedProducts() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    let isMounted = true;
-    setLoading(true);
-
-    async function loadProducts() {
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('is_visible', true)
-          .order('created_at', { ascending: false })
-          .limit(20);
-
-        if (isMounted) {
-          if (data && !error) setProducts(data);
-          setLoading(false);
-        }
-      } catch {
-        if (isMounted) setLoading(false);
-      }
-    }
-
-    loadProducts();
-    return () => { isMounted = false; };
-  }, [location.key]);
-
-  if (loading) return (
-    <section className="max-w-screen-2xl mx-auto px-4 md:px-8 py-16">
-      <div className="flex justify-center py-20">
-        <div className="w-10 h-10 border-4 border-slate-200 border-t-brand-blue rounded-full animate-spin" />
-      </div>
-    </section>
-  );
-
-  if (products.length === 0) return null;
-
-  return (
-    <section className="max-w-screen-2xl mx-auto px-4 md:px-8 py-16">
-      <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
-        <div className="space-y-2">
-          <h2 className="text-3xl md:text-4xl font-black text-slate-800 uppercase tracking-tight">Nuestro Catálogo</h2>
-          <p className="text-slate-500 font-medium">Equipos médicos de alta gama con garantía oficial</p>
-        </div>
-        <button
-          onClick={() => navigate('/buscar?q=')}
-          className="text-xs font-black uppercase tracking-widest text-brand-blue hover:text-brand-green transition-colors flex items-center gap-2"
-        >
-          Ver todo el inventario <span className="material-symbols-outlined text-sm">arrow_forward</span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-        {products.map((product: any) => (
-          <div key={product.id} onClick={() => navigate(`/producto/${product.slug}`)} className="cursor-pointer group">
-            <div className="aspect-square bg-slate-50 rounded-2xl overflow-hidden mb-3 border border-slate-100 relative">
-              <img
-                src={getProductImg(product)}
-                alt={product.name}
-                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 p-4"
-                onError={(e) => { (e.target as HTMLImageElement).src = '/logo.png'; }}
-              />
-              {product.stock_status === 'CONSULT' && (
-                <div className="absolute top-2 right-2 bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md">Consultar</div>
-              )}
-            </div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-brand-blue mb-1">{product.category}</p>
-            <h3 className="font-bold text-slate-800 line-clamp-2 text-sm group-hover:text-brand-blue transition-colors">{product.name}</h3>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(null);
