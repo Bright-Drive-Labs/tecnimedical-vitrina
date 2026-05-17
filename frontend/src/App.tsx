@@ -162,8 +162,6 @@ function HomePage({ onOpenCatalog }: { onOpenCatalog: () => void }) {
   );
 }
 
-const BACKEND = 'https://bright-drive-backend-agent-production.up.railway.app';
-
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
