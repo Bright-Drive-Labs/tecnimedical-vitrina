@@ -12,14 +12,25 @@ const sanitizeInput = (text: string): string => {
   return text.replace(/<[^>]*>?/gm, '').trim();
 };
 
+/** Normaliza la tensión convirtiendo de cmHg a mmHg si es necesario */
+const normalizeBP = (val: number): number => {
+  if (val > 0 && val < 30) {
+    return val * 10;
+  }
+  return val;
+};
+
 /** Clasifica la Presión Arterial (AHA guidelines) */
-const classifyBloodPressure = (sys: number, dia: number) => {
+const classifyBloodPressure = (rawSys: number, rawDia: number) => {
+  const sys = normalizeBP(rawSys);
+  const dia = normalizeBP(rawDia);
   if (sys < 120 && dia < 80) return { label: 'Normal', color: 'text-emerald-600 bg-emerald-50 border-emerald-200', level: 'normal' };
   if (sys >= 120 && sys <= 129 && dia < 80) return { label: 'Elevada', color: 'text-amber-600 bg-amber-50 border-amber-200', level: 'elevated' };
   if ((sys >= 130 && sys <= 139) || (dia >= 80 && dia <= 89)) return { label: 'HTA Estadio 1', color: 'text-orange-600 bg-orange-50 border-orange-200', level: 'hta1' };
   if (sys >= 140 || dia >= 90) return { label: 'HTA Estadio 2', color: 'text-red-600 bg-red-50 border-red-200', level: 'hta2' };
   return { label: 'Sin evaluar', color: 'text-slate-400 bg-slate-50 border-slate-200', level: 'none' };
 };
+
 
 /** Clasifica la Glicemia Capilar */
 const classifyGlucose = (glucose: number, state: 'ayunas' | 'postprandial') => {
@@ -348,8 +359,8 @@ export default function JornadaForm() {
         history_obesity: form.history_obesity,
         history_obese: form.history_obesity, // legacy fallback safety
         history_none: form.history_none,
-        systolic_bp: parseInt(form.systolic_bp),
-        diastolic_bp: parseInt(form.diastolic_bp),
+        systolic_bp: normalizeBP(parseInt(form.systolic_bp)),
+        diastolic_bp: normalizeBP(parseInt(form.diastolic_bp)),
         blood_glucose: parseInt(form.blood_glucose),
         glucose_state: form.glucose_state,
         weight_kg: parseFloat(form.weight_kg),
