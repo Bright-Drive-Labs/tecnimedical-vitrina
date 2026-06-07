@@ -1068,14 +1068,13 @@ export default function JornadaForm() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    <th className="py-3 px-4">Paciente</th>
-                    <th className="py-3 px-4">Cédula / ID</th>
-                    <th className="py-3 px-4">F. Nacimiento / Edad</th>
-                    <th className="py-3 px-4">Tensión</th>
-                    <th className="py-3 px-4">Glicemia</th>
-                    <th className="py-3 px-4">IMC</th>
-                    <th className="py-3 px-4">Conducta</th>
-                    <th className="py-3 px-4 text-right">Acciones</th>
+                    <th className="py-3 px-3">Paciente / ID</th>
+                    <th className="py-3 px-3">Edad / F. Nac.</th>
+                    <th className="py-3 px-3">Tensión</th>
+                    <th className="py-3 px-3">Glicemia</th>
+                    <th className="py-3 px-3">IMC</th>
+                    <th className="py-3 px-3">Conducta</th>
+                    <th className="py-3 px-3 text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1086,47 +1085,70 @@ export default function JornadaForm() {
                     
                     return (
                       <tr key={item.id} className="text-slate-600 text-xs hover:bg-slate-50/50 transition-colors">
-                        <td className="py-4 px-4 font-black uppercase text-slate-800">{item.patient_name}</td>
-                        <td className="py-4 px-4 font-mono font-bold uppercase">{item.patient_dni}</td>
-                        <td className="py-4 px-4 font-semibold">
-                          {item.patient_birth_date ? new Date(item.patient_birth_date).toLocaleDateString('es-ES', { timeZone: 'UTC' }) : '--'} 
-                          <span className="text-slate-400 ml-1.5 font-bold">({item.patient_age} años)</span>
+                        <td className="py-3 px-3">
+                          <div className="font-black uppercase text-slate-800 tracking-tight leading-tight max-w-[160px] break-words">
+                            {item.patient_name}
+                          </div>
+                          <div className="text-[10px] font-mono font-bold text-slate-400 mt-0.5">
+                            {item.patient_dni}
+                          </div>
                         </td>
-                        <td className="py-4 px-4">
-                          <span className="font-bold">{item.systolic_bp}/{item.diastolic_bp}</span>
-                          <span className={`ml-2 text-[9px] font-bold uppercase px-1.5 py-0.5 border rounded-md ${bp.color}`}>
-                            {bp.label}
-                          </span>
+                        <td className="py-3 px-3">
+                          <div className="font-bold text-slate-800">{item.patient_age} años</div>
+                          <div className="text-[10px] text-slate-400 font-medium mt-0.5">
+                            {item.patient_birth_date ? new Date(item.patient_birth_date).toLocaleDateString('es-ES', { timeZone: 'UTC' }) : '--'}
+                          </div>
                         </td>
-                        <td className="py-4 px-4">
-                          <span className="font-bold">{item.blood_glucose} <span className="text-[10px] text-slate-400 font-medium">mg/dL</span></span>
-                          <span className={`ml-2 text-[9px] font-bold uppercase px-1.5 py-0.5 border rounded-md ${glu.color}`}>
-                            {glu.label} ({item.glucose_state})
-                          </span>
+                        <td className="py-3 px-3">
+                          <div className="flex flex-col gap-1 items-start">
+                            <span className="font-mono font-bold text-slate-800 leading-none">
+                              {item.systolic_bp}/{item.diastolic_bp} <span className="text-[9px] text-slate-400 font-normal">mmHg</span>
+                            </span>
+                            <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 border rounded-md leading-none ${bp.color}`}>
+                              {bp.label}
+                            </span>
+                          </div>
                         </td>
-                        <td className="py-4 px-4">
-                          <span className="font-bold">{item.imc}</span>
-                          <span className={`ml-2 text-[9px] font-bold uppercase px-1.5 py-0.5 border rounded-md ${imcVal.color}`}>
-                            {imcVal.label}
-                          </span>
+                        <td className="py-3 px-3">
+                          <div className="flex flex-col gap-1 items-start">
+                            <span className="font-bold text-slate-800 leading-none">
+                              {item.blood_glucose} <span className="text-[9px] text-slate-400 font-normal">mg/dL</span>
+                            </span>
+                            <div className="flex items-center gap-1 leading-none">
+                              <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 border rounded-md ${glu.color}`}>
+                                {glu.label === 'Alerta / Sospecha' ? 'Alerta' : glu.label}
+                              </span>
+                              <span className="text-[9px] font-bold text-slate-400 capitalize bg-slate-50 px-1 py-0.5 rounded border border-slate-200">
+                                {item.glucose_state}
+                              </span>
+                            </div>
+                          </div>
                         </td>
-                        <td className="py-4 px-4 font-bold uppercase text-[10px]">
+                        <td className="py-3 px-3">
+                          <div className="flex flex-col gap-1 items-start">
+                            <span className="font-bold text-slate-800 leading-none">{item.imc}</span>
+                            <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 border rounded-md leading-none ${imcVal.color}`}>
+                              {imcVal.label}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 font-bold uppercase text-[10px]">
                           {item.recommendation === 'control' && <span className="text-emerald-600 bg-emerald-50 border border-emerald-100 rounded px-2 py-0.5">Control</span>}
                           {item.recommendation === 'seguimiento' && <span className="text-amber-600 bg-amber-50 border border-amber-100 rounded px-2 py-0.5">Seguimiento</span>}
                           {item.recommendation === 'urgencia' && <span className="text-red-600 bg-red-50 border border-red-100 rounded px-2 py-0.5">Urgencia</span>}
                         </td>
-                        <td className="py-4 px-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
+                        <td className="py-3 px-3 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleEditClick(item)}
-                              className="text-[10px] font-black uppercase tracking-wider text-brand-blue bg-blue-50/50 hover:bg-blue-50 hover:text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 transition-all cursor-pointer"
+                              className="text-[10px] font-black uppercase tracking-wider text-brand-blue bg-blue-50/50 hover:bg-blue-50 hover:text-blue-700 px-2.5 py-1.5 rounded-lg border border-blue-100 transition-all cursor-pointer"
                             >
                               Editar
                             </button>
                             {userRole === 'admin' && (
                               <button
                                 onClick={() => handleDeleteClick(item.id, item.patient_name)}
-                                className="text-[10px] font-black uppercase tracking-wider text-red-600 bg-red-50/50 hover:bg-red-50 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-100 transition-all cursor-pointer"
+                                className="text-[10px] font-black uppercase tracking-wider text-red-600 bg-red-50/50 hover:bg-red-50 hover:text-red-700 px-2.5 py-1.5 rounded-lg border border-red-100 transition-all cursor-pointer"
                               >
                                 Eliminar
                               </button>
