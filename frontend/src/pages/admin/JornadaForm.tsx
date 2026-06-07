@@ -64,6 +64,7 @@ export default function JornadaForm() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [checkupsList, setCheckupsList] = useState<any[]>([]);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   // Estados del Formulario
   const [form, setForm] = useState({
@@ -90,6 +91,27 @@ export default function JornadaForm() {
     notes: ''
   });
 
+  // Obtener rol del usuario actual
+  const fetchUserRole = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', session.user.id)
+        .eq('tenant_id', import.meta.env.VITE_TENANT_ID || '63e2d67c-9b1a-4d3b-8f32-5a2e6f9c8d1b')
+        .single();
+
+      if (!error && data) {
+        setUserRole(data.role);
+      }
+    } catch (err) {
+      console.error('Error fetching user role:', err);
+    }
+  };
+
   // Obtener registros clínicos desde el backend
   const fetchCheckups = async () => {
     try {
@@ -114,7 +136,9 @@ export default function JornadaForm() {
 
   useEffect(() => {
     fetchCheckups();
+    fetchUserRole();
   }, []);
+
 
   // Exportar registros a formato Excel (.xlsx)
   const handleExportToExcel = () => {
@@ -1081,14 +1105,17 @@ export default function JornadaForm() {
                             >
                               Editar
                             </button>
-                            <button
-                              onClick={() => handleDeleteClick(item.id, item.patient_name)}
-                              className="text-[10px] font-black uppercase tracking-wider text-red-600 bg-red-50/50 hover:bg-red-50 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-100 transition-all cursor-pointer"
-                            >
-                              Eliminar
-                            </button>
+                            {userRole === 'admin' && (
+                              <button
+                                onClick={() => handleDeleteClick(item.id, item.patient_name)}
+                                className="text-[10px] font-black uppercase tracking-wider text-red-600 bg-red-50/50 hover:bg-red-50 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-100 transition-all cursor-pointer"
+                              >
+                                Eliminar
+                              </button>
+                            )}
                           </div>
                         </td>
+
 
                       </tr>
                     );
