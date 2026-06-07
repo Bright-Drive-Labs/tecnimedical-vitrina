@@ -478,8 +478,12 @@ export default function JornadaForm() {
     if (!savedData) return '';
     const phone = savedData.patient_phone.replace(/\D/g, '');
     
+    const dateStr = savedData.created_at 
+      ? new Date(savedData.created_at).toLocaleDateString('es-ES') 
+      : new Date().toLocaleDateString('es-ES');
+
     const bpText = `${savedData.systolic_bp}/${savedData.diastolic_bp} mmHg (${classifyBloodPressure(savedData.systolic_bp, savedData.diastolic_bp).label})`;
-    const glText = `${savedData.blood_glucose} mg/dL (${classifyGlucose(savedData.blood_glucose, savedData.glucose_state).label} - ${savedData.glucose_state})`;
+    const glText = `${savedData.blood_glucose} mg/dL (${classifyGlucose(savedData.blood_glucose, savedData.glucose_state).label} - ${savedData.glucose_state === 'ayunas' ? 'Ayunas' : 'Postprandial'})`;
     const imcText = `${savedData.imc} (${classifyIMC(savedData.imc).label})`;
 
     let recText = '';
@@ -487,17 +491,26 @@ export default function JornadaForm() {
     if (savedData.recommendation === 'seguimiento') recText = 'Seguimiento Médico (Se sugiere acudir a consulta externa)';
     if (savedData.recommendation === 'urgencia') recText = 'Alerta Inmediata (Asistir a sala de urgencias)';
 
+    // Agregar notas/observaciones como indicaciones personalizadas si existen
+    const notesText = savedData.notes && savedData.notes.trim() !== ''
+      ? `\n*Indicaciones a seguir:* ${savedData.notes}\n`
+      : '';
+
     const message = `*JORNADA DE SALUD PREVENTIVA - TECNIMEDICAL*\n\n` +
-      `Estimado(a) *${savedData.patient_name}*, aquí tienes los resultados de tu evaluación:\n\n` +
+      `Estimado(a) *${savedData.patient_name}*, aquí tienes los resultados de tu evaluación del *${dateStr}*:\n\n` +
+      `• *Peso Actual:* ${savedData.weight_kg} kg\n` +
       `• *Presión Arterial:* ${bpText}\n` +
       `• *Glicemia Capilar:* ${glText}\n` +
       `• *IMC:* ${imcText}\n\n` +
-      `*Conducta Sugerida:* ${recText}\n\n` +
+      `*Conducta Sugerida:* ${recText}\n` +
+      notesText + `\n` +
       `_Prevenir es vivir mejor. Prioriza tu salud hoy._\n` +
-      `*www.tecnimedicalve.com*`;
+      `*www.tecnimedicalve.com*\n` +
+      `*Instagram: @tecnimedical.ve*`;
 
     return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
   };
+
 
   const resetForm = () => {
     setForm({
