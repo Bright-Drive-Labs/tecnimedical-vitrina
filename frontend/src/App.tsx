@@ -19,6 +19,8 @@ import Footer from './components/Footer';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProductForm from './pages/admin/ProductForm';
+import AdminMenu from './pages/admin/AdminMenu';
+import JornadaForm from './pages/admin/JornadaForm';
 import { supabase } from './lib/supabase';
 
 // Types
@@ -166,13 +168,14 @@ function HomePage({ onOpenCatalog }: { onOpenCatalog: () => void }) {
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     async function checkRole(user: any) {
       if (!user) {
-        setIsAdmin(false);
+        setUserRole(null);
         setLoading(false);
         return;
       }
@@ -182,10 +185,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         .select('role')
         .eq('user_id', user.id)
         .eq('tenant_id', '63e2d67c-9b1a-4d3b-8f32-5a2e6f9c8d1b')
-        .eq('role', 'admin')
         .single();
 
-      setIsAdmin(!!data && !error);
+      if (!error && data) {
+        setUserRole(data.role);
+      } else {
+        setUserRole(null);
+      }
       setLoading(false);
     }
 
@@ -199,7 +205,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       setSession(session);
       if (session) checkRole(session.user);
       else {
-        setIsAdmin(false);
+        setUserRole(null);
         setLoading(false);
       }
     });
@@ -213,22 +219,47 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     </div>
   );
 
-  if (!session) return <Navigate to="/admin/login" />;
-  
-  if (isAdmin === false) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4 text-center">
-        <span className="material-symbols-outlined text-red-500 text-6xl mb-4">gpp_bad</span>
-        <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Acceso Denegado</h1>
-        <p className="text-slate-500 mt-2 max-w-sm">No tienes permisos de administrador para Tecnimedical. Contacta al soporte técnico si crees que esto es un error.</p>
-        <button 
-          onClick={() => supabase.auth.signOut()}
-          className="mt-8 text-xs font-black uppercase tracking-widest text-brand-blue hover:underline"
-        >
-          Cerrar sesión e intentar con otra cuenta
-        </button>
-      </div>
-    );
+  if (!session) return <Navigate to="/admin/login" replace />;
+
+  const isJornadaRoute = location.pathname === '/admin/jornada';
+
+  if (isJornadaRoute) {
+    const isAllowed = userRole === 'admin' || userRole === 'nurse' || userRole === 'enfermera';
+    if (!isAllowed) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4 text-center">
+          <span className="material-symbols-outlined text-red-500 text-6xl mb-4">gpp_bad</span>
+          <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Acceso Denegado</h1>
+          <p className="text-slate-500 mt-2 max-w-sm">No tienes permisos para acceder a la Ficha de Despistaje. Contacta al soporte técnico si crees que esto es un error.</p>
+          <button 
+            onClick={() => supabase.auth.signOut()}
+            className="mt-8 text-xs font-black uppercase tracking-widest text-brand-blue hover:underline"
+          >
+            Cerrar sesión e intentar con otra cuenta
+          </button>
+        </div>
+      );
+    }
+  } else {
+    if (userRole !== 'admin') {
+      if (userRole === 'nurse' || userRole === 'enfermera') {
+        return <Navigate to="/admin/jornada" replace />;
+      }
+      
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4 text-center">
+          <span className="material-symbols-outlined text-red-500 text-6xl mb-4">gpp_bad</span>
+          <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Acceso Denegado</h1>
+          <p className="text-slate-500 mt-2 max-w-sm">No tienes permisos de administrador para Tecnimedical. Contacta al soporte técnico si crees que esto es un error.</p>
+          <button 
+            onClick={() => supabase.auth.signOut()}
+            className="mt-8 text-xs font-black uppercase tracking-widest text-brand-blue hover:underline"
+          >
+            Cerrar sesión e intentar con otra cuenta
+          </button>
+        </div>
+      );
+    }
   }
 
   return <>{children}</>;
@@ -272,7 +303,9 @@ function App() {
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminMenu /></ProtectedRoute>} />
+          <Route path="/admin/catalogo" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/jornada" element={<ProtectedRoute><JornadaForm /></ProtectedRoute>} />
           <Route path="/admin/nuevo" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
           <Route path="/admin/editar/:id" element={<ProtectedRoute><ProductForm /></ProtectedRoute>} />
 

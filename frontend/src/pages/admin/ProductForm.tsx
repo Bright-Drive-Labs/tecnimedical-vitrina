@@ -180,7 +180,7 @@ export default function ProductForm() {
         }
       }
 
-      navigate('/admin');
+      navigate('/admin/catalogo');
     } catch (err: any) {
       alert(`Error: ${err.message}`);
     } finally {
@@ -194,7 +194,7 @@ export default function ProductForm() {
         <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tight">
           {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
         </h1>
-        <button onClick={() => navigate('/admin')} className="text-slate-400 hover:text-slate-800 font-bold uppercase tracking-widest text-xs transition-colors">Volver</button>
+        <button onClick={() => navigate('/admin/catalogo')} className="text-slate-400 hover:text-slate-800 font-bold uppercase tracking-widest text-xs transition-colors">Volver</button>
       </header>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-10">
