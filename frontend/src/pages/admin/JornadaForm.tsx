@@ -295,6 +295,30 @@ export default function JornadaForm() {
     return true;
   };
 
+  // Formatea el teléfono al formato internacional de Venezuela (+58...)
+  const formatVenezuelanPhone = (phoneStr: string): string => {
+    const digits = phoneStr.replace(/\D/g, '');
+    if (!digits) return '';
+
+    // Si ya empieza con 58 y tiene el largo correcto (12 dígitos, ej. 584141234567)
+    if (digits.startsWith('58') && digits.length === 12) {
+      return `+${digits}`;
+    }
+
+    // Si empieza con 04 (ej. 04141234567) -> convertir a +584141234567
+    if (digits.startsWith('04') && digits.length === 11) {
+      return `+58${digits.slice(1)}`;
+    }
+
+    // Si empieza con 4 (ej. 4141234567) -> convertir a +584141234567
+    if ((digits.startsWith('414') || digits.startsWith('424') || digits.startsWith('412') || digits.startsWith('416') || digits.startsWith('426')) && digits.length === 10) {
+      return `+58${digits}`;
+    }
+
+    // Si ya tiene un formato diferente, retornarlo con el símbolo +
+    return phoneStr.startsWith('+') ? phoneStr : `+${digits}`;
+  };
+
   // Envío del Formulario al Backend (JWT Protegido)
   const handleSubmit = async () => {
     setLoading(true);
@@ -311,8 +335,9 @@ export default function JornadaForm() {
         patient_dni: sanitizeInput(form.patient_dni),
         patient_age: form.patient_age ? parseInt(form.patient_age) : null,
         patient_gender: form.patient_gender,
-        patient_phone: sanitizeInput(form.patient_phone),
+        patient_phone: formatVenezuelanPhone(sanitizeInput(form.patient_phone)),
         patient_email: sanitizeInput(form.patient_email),
+
         patient_birth_date: sanitizeInput(form.patient_birth_date),
         history_hypertension: form.history_hypertension,
         history_hyration: form.history_hypertension, // legacy fallback safety
