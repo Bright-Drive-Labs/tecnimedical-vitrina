@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
+import * as XLSX from 'xlsx';
+
 
 // ─── Funciones Auxiliares de Sanitización y Clasificación ──────────────────────────
 
@@ -102,6 +104,72 @@ export default function JornadaForm() {
   useEffect(() => {
     fetchCheckups();
   }, []);
+
+  // Exportar registros a formato Excel (.xlsx)
+  const handleExportToExcel = () => {
+    if (checkupsList.length === 0) return;
+
+    const dataToExport = checkupsList.map(item => {
+      const bp = classifyBloodPressure(item.systolic_bp, item.diastolic_bp);
+      const glu = classifyGlucose(item.blood_glucose, item.glucose_state);
+      const imcVal = item.imc;
+      const imcClass = classifyIMC(imcVal);
+      
+      const historyList = [];
+      if (item.history_hypertension) historyList.push('HTA');
+      if (item.history_hypertension_treatment) historyList.push('Trat. HTA');
+      if (item.history_diabetes) historyList.push('Diabetes');
+      if (item.history_diabetes_treatment) historyList.push('Trat. Diabetes');
+      if (item.history_obesity) historyList.push('Obesidad');
+      if (item.history_none) historyList.push('Ninguno');
+      const historyStr = historyList.join(', ') || 'Ninguno';
+
+      return {
+        'Fecha Registro': item.created_at ? new Date(item.created_at).toLocaleDateString('es-ES') : '',
+        'Nombre Paciente': item.patient_name,
+        'Cédula / ID': item.patient_dni,
+        'Fecha Nacimiento': item.patient_birth_date ? new Date(item.patient_birth_date).toLocaleDateString('es-ES', { timeZone: 'UTC' }) : '',
+        'Edad': item.patient_age || '',
+        'Sexo': item.patient_gender === 'M' ? 'Masculino' : 'Femenino',
+        'Teléfono': item.patient_phone || '',
+        'Correo': item.patient_email || '',
+        'Antecedentes': historyStr,
+        'Presión Sistólica (mmHg)': item.systolic_bp,
+        'Presión Diastólica (mmHg)': item.diastolic_bp,
+        'Clasificación Presión': bp.label,
+        'Glicemia (mg/dL)': item.blood_glucose,
+        'Estado Glicemia': item.glucose_state === 'ayunas' ? 'Ayunas' : 'Postprandial',
+        'Clasificación Glicemia': glu.label,
+        'Peso (kg)': item.weight_kg,
+        'Estatura (m)': item.height_m,
+        'IMC': imcVal,
+        'Clasificación IMC': imcClass.label,
+        'Conducta Clínica': item.recommendation === 'control' ? 'Control Anual' : item.recommendation === 'seguimiento' ? 'Seguimiento Médico' : 'Alerta Inmediata',
+        'Notas / Observaciones': item.notes || ''
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros Clínicos');
+    
+    // Auto-ajustar ancho de columnas para mejor legibilidad
+    const maxColsWidth = Object.keys(dataToExport[0]).map(key => {
+      let maxLen = key.length;
+      dataToExport.forEach(row => {
+        const val = row[key as keyof typeof row];
+        if (val !== undefined && val !== null) {
+          maxLen = Math.max(maxLen, val.toString().length);
+        }
+      });
+      return { wch: maxLen + 3 };
+    });
+    worksheet['!cols'] = maxColsWidth;
+
+    const dateStr = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(workbook, `Jornada_TecniMedical_${dateStr}.xlsx`);
+  };
+
 
   // Calcular edad automáticamente a partir de la fecha de nacimiento
   const handleBirthDateChange = (dateStr: string) => {
@@ -837,15 +905,27 @@ export default function JornadaForm() {
 
         {/* Tabla de Registros Recientes */}
         <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm w-full">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
               <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Pacientes Registrados</h3>
               <p className="text-slate-500 text-xs mt-1">Registros clínicos de hoy y de jornadas previas</p>
             </div>
-            <span className="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1">
-              {checkupsList.length} Registros
-            </span>
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+              {checkupsList.length > 0 && (
+                <button
+                  onClick={handleExportToExcel}
+                  className="flex items-center justify-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-sm">download</span>
+                  Descargar Excel
+                </button>
+              )}
+              <span className="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1 whitespace-nowrap">
+                {checkupsList.length} Registros
+              </span>
+            </div>
           </div>
+
 
           <div className="overflow-x-auto">
             {checkupsList.length === 0 ? (
