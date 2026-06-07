@@ -20,15 +20,33 @@ const normalizeBP = (val: number): number => {
   return val;
 };
 
-/** Clasifica la Presión Arterial (AHA guidelines) */
+/** Clasifica la Presión Arterial (ESC/ESH guidelines) */
 const classifyBloodPressure = (rawSys: number, rawDia: number) => {
   const sys = normalizeBP(rawSys);
   const dia = normalizeBP(rawDia);
-  if (sys < 120 && dia < 80) return { label: 'Normal', color: 'text-emerald-600 bg-emerald-50 border-emerald-200', level: 'normal' };
-  if (sys >= 120 && sys <= 129 && dia < 80) return { label: 'Elevada', color: 'text-amber-600 bg-amber-50 border-amber-200', level: 'elevated' };
-  if ((sys >= 130 && sys <= 139) || (dia >= 80 && dia <= 89)) return { label: 'HTA Estadio 1', color: 'text-orange-600 bg-orange-50 border-orange-200', level: 'hta1' };
-  if (sys >= 140 || dia >= 90) return { label: 'HTA Estadio 2', color: 'text-red-600 bg-red-50 border-red-200', level: 'hta2' };
-  return { label: 'Sin evaluar', color: 'text-slate-400 bg-slate-50 border-slate-200', level: 'none' };
+
+  if (!sys || !dia) {
+    return { label: 'Sin evaluar', color: 'text-slate-400 bg-slate-50 border-slate-200', level: 'none' };
+  }
+
+  // La clasificación se determina por el valor más alto entre la presión sistólica y la diastólica
+  // 1. Óptima: Sistólica <= 120 mmHg Y Diastólica <= 80 mmHg
+  if (sys <= 120 && dia <= 80) {
+    return { label: 'Óptima', color: 'text-emerald-600 bg-emerald-50 border-emerald-200', level: 'optima' };
+  }
+
+  // 2. Normal: Sistólica entre 120 y 129 mmHg Y Diastólica entre 80 y 84 mmHg (o menor)
+  if (sys <= 129 && dia <= 84) {
+    return { label: 'Normal', color: 'text-yellow-600 bg-yellow-50 border-yellow-200', level: 'normal' };
+  }
+
+  // 3. Normal Alta: Sistólica entre 130 y 139 mmHg O Diastólica entre 85 y 89 mmHg
+  if (sys <= 139 && dia <= 89) {
+    return { label: 'Normal Alta', color: 'text-orange-600 bg-orange-50 border-orange-200', level: 'normal_alta' };
+  }
+
+  // 4. HTA: Sistólica >= 140 mmHg O Diastólica >= 90 mmHg
+  return { label: 'HTA', color: 'text-red-600 bg-red-50 border-red-200', level: 'hta' };
 };
 
 
@@ -265,7 +283,7 @@ export default function JornadaForm() {
       return;
     }
 
-    const bpIsAlter = bpClassification.level !== 'normal' && bpClassification.level !== 'none';
+    const bpIsAlter = bpClassification.level !== 'normal' && bpClassification.level !== 'optima' && bpClassification.level !== 'none';
     const glucoseIsAlter = glucoseClassification.level !== 'normal' && glucoseClassification.level !== 'none';
     const imcIsAlter = imc > 0 && (imc < 18.5 || imc >= 25.0);
 
