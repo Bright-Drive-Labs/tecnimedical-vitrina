@@ -433,6 +433,46 @@ export default function JornadaForm() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Eliminar un registro clínico
+  const handleDeleteClick = async (id: string, patientName: string) => {
+    const confirmed = window.confirm(`¿Estás seguro de que deseas eliminar permanentemente el registro clínico de ${patientName}?`);
+    if (!confirmed) return;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert('Sesión expirada. Inicia sesión nuevamente para realizar esta acción.');
+        return;
+      }
+
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://bright-drive-backend-agent-production.up.railway.app';
+      const response = await fetch(`${apiBaseUrl}/api/clinical-checkups/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+
+      const resData = await response.json();
+      if (response.ok && resData.success) {
+        alert('Registro clínico eliminado correctamente.');
+        fetchCheckups(); // Recargar la grilla
+        
+        // Si estábamos editando este mismo registro, cancelar la edición
+        if (isEditing && editingId === id) {
+          setIsEditing(false);
+          setEditingId(null);
+          resetForm();
+        }
+      } else {
+        alert(`Error al eliminar: ${resData.error || 'No se pudo completar la acción'}`);
+      }
+    } catch (err: any) {
+      alert(`Error de red al eliminar el registro: ${err.message}`);
+    }
+  };
+
+
   // Genera URL de WhatsApp para enviar el reporte formateado al paciente
   const getWhatsAppShareUrl = () => {
     if (!savedData) return '';
@@ -1021,13 +1061,22 @@ export default function JornadaForm() {
                           {item.recommendation === 'urgencia' && <span className="text-red-600 bg-red-50 border border-red-100 rounded px-2 py-0.5">Urgencia</span>}
                         </td>
                         <td className="py-4 px-4 text-right">
-                          <button
-                            onClick={() => handleEditClick(item)}
-                            className="text-[10px] font-black uppercase tracking-wider text-brand-blue hover:underline bg-blue-50/50 hover:bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 transition-all"
-                          >
-                            Editar
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => handleEditClick(item)}
+                              className="text-[10px] font-black uppercase tracking-wider text-brand-blue bg-blue-50/50 hover:bg-blue-50 hover:text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100 transition-all cursor-pointer"
+                            >
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(item.id, item.patient_name)}
+                              className="text-[10px] font-black uppercase tracking-wider text-red-600 bg-red-50/50 hover:bg-red-50 hover:text-red-700 px-3 py-1.5 rounded-lg border border-red-100 transition-all cursor-pointer"
+                            >
+                              Eliminar
+                            </button>
+                          </div>
                         </td>
+
                       </tr>
                     );
                   })}
