@@ -47,6 +47,11 @@ export default function JornadaForm() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [savedData, setSavedData] = useState<any>(null);
 
+  // Estados de Edición y Listado
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [checkupsList, setCheckupsList] = useState<any[]>([]);
+
   // Estados del Formulario
   const [form, setForm] = useState({
     patient_name: '',
@@ -55,6 +60,7 @@ export default function JornadaForm() {
     patient_gender: 'M',
     patient_phone: '',
     patient_email: '',
+    patient_birth_date: '',
     history_hypertension: false,
     history_hypertension_treatment: false,
     history_diabetes: false,
@@ -71,12 +77,57 @@ export default function JornadaForm() {
     notes: ''
   });
 
+  // Obtener registros clínicos desde el backend
+  const fetchCheckups = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://bright-drive-backend-agent-production.up.railway.app';
+      const response = await fetch(`${apiBaseUrl}/api/clinical-checkups`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      const resData = await response.json();
+      if (response.ok && resData.success) {
+        setCheckupsList(resData.data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching checkups:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchCheckups();
+  }, []);
+
+  // Calcular edad automáticamente a partir de la fecha de nacimiento
+  const handleBirthDateChange = (dateStr: string) => {
+    setForm(prev => {
+      const updated = { ...prev, patient_birth_date: dateStr };
+      if (dateStr) {
+        const birthDate = new Date(dateStr);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        updated.patient_age = age >= 0 ? age.toString() : '';
+      } else {
+        updated.patient_age = '';
+      }
+      return updated;
+    });
+  };
+
   // Cálculos dinámicos (IMC)
   const imc = useMemo(() => {
     const w = parseFloat(form.weight_kg);
     const h = parseFloat(form.height_m);
     if (!w || !h || h <= 0) return 0;
-    // Fórmula oficial: Peso / Talla^2
     const calc = w / (h * h);
     return Math.round(calc * 100) / 100;
   }, [form.weight_kg, form.height_m]);
@@ -106,13 +157,11 @@ export default function JornadaForm() {
     const dia = parseInt(form.diastolic_bp) || 0;
     const glu = parseInt(form.blood_glucose) || 0;
 
-    // Alerta Crítica/Urgencia inmediata
     if (sys >= 180 || dia >= 120 || (glu > 250)) {
       setForm(prev => ({ ...prev, recommendation: 'urgencia' }));
       return;
     }
 
-    // Seguimiento Médico si hay valores alterados
     const bpIsAlter = bpClassification.level !== 'normal' && bpClassification.level !== 'none';
     const glucoseIsAlter = glucoseClassification.level !== 'normal' && glucoseClassification.level !== 'none';
     const imcIsAlter = imc > 0 && (imc < 18.5 || imc >= 25.0);
@@ -163,7 +212,11 @@ export default function JornadaForm() {
 
   const isStepValid = () => {
     if (step === 1) {
-      return form.patient_name.trim() !== '' && form.patient_dni.trim() !== '' && form.patient_age !== '' && form.patient_phone.trim() !== '';
+      return form.patient_name.trim() !== '' && 
+             form.patient_dni.trim() !== '' && 
+             form.patient_age !== '' && 
+             form.patient_birth_date !== '' &&
+             form.patient_phone.trim() !== '';
     }
     if (step === 2) {
       return isHistorySelected();
@@ -178,7 +231,6 @@ export default function JornadaForm() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      // 1. Obtener la sesión activa para mandar el Token JWT en el Header
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         alert('Sesión expirada. Por favor inicia sesión de nuevo.');
@@ -186,7 +238,6 @@ export default function JornadaForm() {
         return;
       }
 
-      // 2. Sanitización estricta anti-XSS de inputs antes de enviar
       const payload = {
         patient_name: sanitizeInput(form.patient_name),
         patient_dni: sanitizeInput(form.patient_dni),
@@ -194,11 +245,15 @@ export default function JornadaForm() {
         patient_gender: form.patient_gender,
         patient_phone: sanitizeInput(form.patient_phone),
         patient_email: sanitizeInput(form.patient_email),
+        patient_birth_date: sanitizeInput(form.patient_birth_date),
         history_hypertension: form.history_hypertension,
+        history_hyration: form.history_hypertension, // legacy fallback safety
         history_hypertension_treatment: form.history_hypertension_treatment,
         history_diabetes: form.history_diabetes,
+        history_diab: form.history_diabetes, // legacy fallback safety
         history_diabetes_treatment: form.history_diabetes_treatment,
         history_obesity: form.history_obesity,
+        history_obese: form.history_obesity, // legacy fallback safety
         history_none: form.history_none,
         systolic_bp: parseInt(form.systolic_bp),
         diastolic_bp: parseInt(form.diastolic_bp),
@@ -211,10 +266,16 @@ export default function JornadaForm() {
         notes: sanitizeInput(form.notes)
       };
 
-      // 3. Petición HTTP al Backend
       const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://bright-drive-backend-agent-production.up.railway.app';
-      const response = await fetch(`${apiBaseUrl}/api/clinical-checkups`, {
-        method: 'POST',
+      
+      const url = isEditing 
+        ? `${apiBaseUrl}/api/clinical-checkups/${editingId}`
+        : `${apiBaseUrl}/api/clinical-checkups`;
+
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
@@ -237,12 +298,42 @@ export default function JornadaForm() {
     }
   };
 
+  // Cargar registro de la grilla en el formulario para editar
+  const handleEditClick = (item: any) => {
+    setForm({
+      patient_name: item.patient_name || '',
+      patient_dni: item.patient_dni || '',
+      patient_age: item.patient_age !== null && item.patient_age !== undefined ? item.patient_age.toString() : '',
+      patient_gender: item.patient_gender || 'M',
+      patient_phone: item.patient_phone || '',
+      patient_email: item.patient_email || '',
+      patient_birth_date: item.patient_birth_date || '',
+      history_hypertension: !!item.history_hypertension,
+      history_hypertension_treatment: !!item.history_hypertension_treatment,
+      history_diabetes: !!item.history_diabetes,
+      history_diabetes_treatment: !!item.history_diabetes_treatment,
+      history_obesity: !!item.history_obesity,
+      history_none: !!item.history_none,
+      systolic_bp: item.systolic_bp !== null && item.systolic_bp !== undefined ? item.systolic_bp.toString() : '',
+      diastolic_bp: item.diastolic_bp !== null && item.diastolic_bp !== undefined ? item.diastolic_bp.toString() : '',
+      blood_glucose: item.blood_glucose !== null && item.blood_glucose !== undefined ? item.blood_glucose.toString() : '',
+      glucose_state: item.glucose_state || 'ayunas',
+      weight_kg: item.weight_kg !== null && item.weight_kg !== undefined ? item.weight_kg.toString() : '',
+      height_m: item.height_m !== null && item.height_m !== undefined ? item.height_m.toString() : '',
+      recommendation: item.recommendation || 'control',
+      notes: item.notes || ''
+    });
+    setIsEditing(true);
+    setEditingId(item.id);
+    setStep(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Genera URL de WhatsApp para enviar el reporte formateado al paciente
   const getWhatsAppShareUrl = () => {
     if (!savedData) return '';
     const phone = savedData.patient_phone.replace(/\D/g, '');
     
-    // Clasificaciones legibles
     const bpText = `${savedData.systolic_bp}/${savedData.diastolic_bp} mmHg (${classifyBloodPressure(savedData.systolic_bp, savedData.diastolic_bp).label})`;
     const glText = `${savedData.blood_glucose} mg/dL (${classifyGlucose(savedData.blood_glucose, savedData.glucose_state).label} - ${savedData.glucose_state})`;
     const imcText = `${savedData.imc} (${classifyIMC(savedData.imc).label})`;
@@ -272,6 +363,7 @@ export default function JornadaForm() {
       patient_gender: 'M',
       patient_phone: '',
       patient_email: '',
+      patient_birth_date: '',
       history_hypertension: false,
       history_hypertension_treatment: false,
       history_diabetes: false,
@@ -290,6 +382,9 @@ export default function JornadaForm() {
     setStep(1);
     setIsSuccessModalOpen(false);
     setSavedData(null);
+    setIsEditing(false);
+    setEditingId(null);
+    fetchCheckups();
   };
 
   return (
@@ -312,8 +407,8 @@ export default function JornadaForm() {
       </nav>
 
       {/* Formulario con Stepper */}
-      <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-8 flex flex-col justify-center">
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-10 shadow-sm">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8 flex flex-col gap-10 justify-center">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-10 shadow-sm max-w-2xl w-full mx-auto">
           {/* Encabezado */}
           <div className="mb-8">
             <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Ficha de Despistaje</h2>
@@ -366,13 +461,12 @@ export default function JornadaForm() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2 uppercase">Edad *</label>
+                    <label className="block text-xs font-bold text-slate-600 mb-2 uppercase">Fecha de Nacimiento *</label>
                     <input 
-                      type="number"
-                      value={form.patient_age}
-                      onChange={(e) => setForm(prev => ({ ...prev, patient_age: e.target.value }))}
+                      type="date"
+                      value={form.patient_birth_date}
+                      onChange={(e) => handleBirthDateChange(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
-                      placeholder="Años"
                     />
                   </div>
                 </div>
@@ -396,6 +490,20 @@ export default function JornadaForm() {
                     </div>
                   </div>
                   <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-2 uppercase">Edad (Auto-calculada) *</label>
+                    <input 
+                      type="number"
+                      value={form.patient_age}
+                      readOnly
+                      disabled
+                      className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-500 cursor-not-allowed focus:outline-none"
+                      placeholder="Años"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
                     <label className="block text-xs font-bold text-slate-600 mb-2 uppercase">Teléfono (WhatsApp) *</label>
                     <input 
                       type="tel"
@@ -405,17 +513,16 @@ export default function JornadaForm() {
                       placeholder="Ej. +584141234567"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-2 uppercase">Correo Electrónico</label>
-                  <input 
-                    type="email"
-                    value={form.patient_email}
-                    onChange={(e) => setForm(prev => ({ ...prev, patient_email: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
-                    placeholder="paciente@correo.com"
-                  />
+                  <div>
+                    <label className="block text-xs font-bold text-slate-600 mb-2 uppercase">Correo Electrónico</label>
+                    <input 
+                      type="email"
+                      value={form.patient_email}
+                      onChange={(e) => setForm(prev => ({ ...prev, patient_email: e.target.value }))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
+                      placeholder="paciente@correo.com"
+                    />
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -724,6 +831,92 @@ export default function JornadaForm() {
               >
                 {loading ? 'Guardando...' : 'Finalizar Registro'}
               </button>
+            )}
+          </div>
+        </div>
+
+        {/* Tabla de Registros Recientes */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm w-full">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-lg font-black text-slate-800 uppercase tracking-tight">Pacientes Registrados</h3>
+              <p className="text-slate-500 text-xs mt-1">Registros clínicos de hoy y de jornadas previas</p>
+            </div>
+            <span className="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 rounded-full px-3 py-1">
+              {checkupsList.length} Registros
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            {checkupsList.length === 0 ? (
+              <div className="text-center py-10 border border-dashed border-slate-200 rounded-2xl">
+                <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">assignment_ind</span>
+                <p className="text-sm text-slate-400 font-bold uppercase tracking-tight">No hay registros cargados aún</p>
+              </div>
+            ) : (
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <th className="py-3 px-4">Paciente</th>
+                    <th className="py-3 px-4">Cédula / ID</th>
+                    <th className="py-3 px-4">F. Nacimiento / Edad</th>
+                    <th className="py-3 px-4">Tensión</th>
+                    <th className="py-3 px-4">Glicemia</th>
+                    <th className="py-3 px-4">IMC</th>
+                    <th className="py-3 px-4">Conducta</th>
+                    <th className="py-3 px-4 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {checkupsList.map((item) => {
+                    const bp = classifyBloodPressure(item.systolic_bp, item.diastolic_bp);
+                    const glu = classifyGlucose(item.blood_glucose, item.glucose_state);
+                    const imcVal = classifyIMC(item.imc);
+                    
+                    return (
+                      <tr key={item.id} className="text-slate-600 text-xs hover:bg-slate-50/50 transition-colors">
+                        <td className="py-4 px-4 font-black uppercase text-slate-800">{item.patient_name}</td>
+                        <td className="py-4 px-4 font-mono font-bold uppercase">{item.patient_dni}</td>
+                        <td className="py-4 px-4 font-semibold">
+                          {item.patient_birth_date ? new Date(item.patient_birth_date).toLocaleDateString('es-ES', { timeZone: 'UTC' }) : '--'} 
+                          <span className="text-slate-400 ml-1.5 font-bold">({item.patient_age} años)</span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="font-bold">{item.systolic_bp}/{item.diastolic_bp}</span>
+                          <span className={`ml-2 text-[9px] font-bold uppercase px-1.5 py-0.5 border rounded-md ${bp.color}`}>
+                            {bp.label}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="font-bold">{item.blood_glucose} <span className="text-[10px] text-slate-400 font-medium">mg/dL</span></span>
+                          <span className={`ml-2 text-[9px] font-bold uppercase px-1.5 py-0.5 border rounded-md ${glu.color}`}>
+                            {glu.label} ({item.glucose_state})
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="font-bold">{item.imc}</span>
+                          <span className={`ml-2 text-[9px] font-bold uppercase px-1.5 py-0.5 border rounded-md ${imcVal.color}`}>
+                            {imcVal.label}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 font-bold uppercase text-[10px]">
+                          {item.recommendation === 'control' && <span className="text-emerald-600 bg-emerald-50 border border-emerald-100 rounded px-2 py-0.5">Control</span>}
+                          {item.recommendation === 'seguimiento' && <span className="text-amber-600 bg-amber-50 border border-amber-100 rounded px-2 py-0.5">Seguimiento</span>}
+                          {item.recommendation === 'urgencia' && <span className="text-red-600 bg-red-50 border border-red-100 rounded px-2 py-0.5">Urgencia</span>}
+                        </td>
+                        <td className="py-4 px-4 text-right">
+                          <button
+                            onClick={() => handleEditClick(item)}
+                            className="text-[10px] font-black uppercase tracking-wider text-brand-blue hover:underline bg-blue-50/50 hover:bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 transition-all"
+                          >
+                            Editar
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             )}
           </div>
         </div>
